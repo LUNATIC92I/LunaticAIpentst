@@ -11,6 +11,7 @@ import { AiModule } from './ai/ai.module';
 import { MissionsModule } from './missions/missions.module';
 import { SandboxModule } from './sandbox/sandbox.module';
 import { BrowserModule } from './browser/browser.module';
+import { ToolsModule } from './tools/tools.module';
 import { AgentModule } from './agent/agent.module';
 import { HealthController } from './health/health.controller';
 import { JwtAuthGuard } from './common/jwt-auth.guard';
@@ -28,6 +29,7 @@ import { PermissionsGuard } from './common/permissions.guard';
     PlatformModule,
     SandboxModule,
     BrowserModule,
+    ToolsModule,
     MissionsModule,
     AgentModule,
   ],

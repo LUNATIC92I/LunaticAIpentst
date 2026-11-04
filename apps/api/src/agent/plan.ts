@@ -23,6 +23,7 @@ export interface PlanStep {
 /** Tools we plan for, with their default risk. Execution lands in Phase 7/9. */
 const RECON_TOOLS: { tool: string; risk: StepRisk; forHosts: boolean }[] = [
   { tool: 'httpx', risk: 'medium', forHosts: true },
+  { tool: 'nuclei', risk: 'high', forHosts: true },
   { tool: 'nmap', risk: 'high', forHosts: false },
 ];
 

@@ -98,10 +98,17 @@ Status legend: ✅ done · 🚧 in progress · ⬜ not started.
 - [x] Browser UI page (URL bar, screenshot, headers, redirects, blocked
       sub-requests, history). Verified LIVE against a public in-scope target.
 
-## Phase 9 — Recon & analysis tools ⬜
-- [ ] Adapters (nmap, subfinder, httpx, nuclei, nikto, testssl, semgrep,
-      gitleaks, trivy, …) each with error handling + logging
-- [ ] All active tools gated by scope guard
+## Phase 9 — Recon & analysis tools 🚧
+- [x] Tool-adapter framework (argv builders + pure parsers + registry/catalog)
+- [x] Adapters: nmap, subfinder, httpx, nuclei (recon/network/web) + semgrep,
+      gitleaks, trivy (code/secrets/deps). Parsers map output → findings with
+      severity + CWE/CVE/OWASP. 9 parser unit tests pass.
+- [x] Wired into the agent: tool steps build real commands, run in the sandbox,
+      and create DETECTED findings linked to hash-chained evidence
+- [x] Active tools (nmap/httpx/nuclei) gated by the scope guard + permission mode
+- [x] `/tools/catalog` endpoint + tool-catalog + CWE/CVE badges in the Agent UI
+- [ ] More adapters (nikto, testssl, whatweb, bandit, ZAP) — same pattern; and
+      live end-to-end runs need the sandbox tool image (Docker/E2B)
 
 ## Phase 10 — Evidence & reporting ⬜
 - [ ] Hash-chained evidence store

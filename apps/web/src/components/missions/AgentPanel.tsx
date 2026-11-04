@@ -12,7 +12,7 @@ import {
   Bug,
   Lock,
 } from 'lucide-react';
-import { agent, type Execution, type PlanStep, type Finding, type Mission } from '@/lib/api';
+import { agent, tools, type Execution, type PlanStep, type Finding, type Mission, type ToolCatalogItem } from '@/lib/api';
 
 const ACTION_ICON = { scope_verify: ShieldCheck, dns_recon: Globe, tool: Wrench } as const;
 const STATUS_COLOR: Record<string, string> = {
@@ -32,8 +32,13 @@ export function AgentPanel({ mission }: { mission: Mission }) {
   const [execs, setExecs] = useState<Execution[]>([]);
   const [findings, setFindings] = useState<Finding[]>([]);
   const [integrity, setIntegrity] = useState<{ count: number; valid: boolean } | null>(null);
+  const [catalog, setCatalog] = useState<ToolCatalogItem[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    tools.catalog().then(setCatalog).catch(() => undefined);
+  }, []);
 
   const refresh = useCallback(async () => {
     const [plan, e, f, v] = await Promise.all([
@@ -84,6 +89,23 @@ export function AgentPanel({ mission }: { mission: Mission }) {
         </span>
       </div>
       {error && <p className="text-sm text-danger">{error}</p>}
+
+      {catalog.length > 0 && (
+        <div className="rounded-lg border border-border bg-bg-elevated p-3">
+          <p className="mb-2 text-xs uppercase tracking-wide text-text-dim">Tool adapters ({catalog.length})</p>
+          <div className="flex flex-wrap gap-1.5">
+            {catalog.map((c) => (
+              <span
+                key={c.name}
+                title={`${c.description} (${c.category}${c.active ? ', active' : ', passive'})`}
+                className={`rounded-md border px-2 py-0.5 font-mono text-[11px] ${c.active ? 'border-accent/30 text-accent' : 'border-border text-text-muted'}`}
+              >
+                {c.name}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
 
       {steps.length === 0 ? (
         <p className="py-6 text-center text-sm text-text-dim">
@@ -159,7 +181,12 @@ export function AgentPanel({ mission }: { mission: Mission }) {
                     </span>
                   </div>
                   {f.description && <p className="mt-0.5 text-xs text-text-muted">{f.description}</p>}
-                  <p className="mt-1 text-[11px] text-text-dim">{f.evidence.length} evidence record(s)</p>
+                  <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px]">
+                    {f.cve && <span className="rounded bg-danger/15 px-1.5 py-0.5 font-mono text-danger">{f.cve}</span>}
+                    {f.cwe && <span className="rounded bg-warn/15 px-1.5 py-0.5 font-mono text-warn">{f.cwe}</span>}
+                    {f.owasp && <span className="rounded bg-electric/15 px-1.5 py-0.5 font-mono text-electric">{f.owasp}</span>}
+                    <span className="text-text-dim">{f.evidence.length} evidence record(s)</span>
+                  </div>
                 </li>
               ))}
             </ul>

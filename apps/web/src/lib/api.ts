@@ -268,8 +268,21 @@ export interface Finding {
   description: string | null;
   state: string;
   severity: string;
+  cwe?: string | null;
+  cve?: string | null;
+  owasp?: string | null;
   evidence: { id: string; kind: string; summary: string | null; hash: string }[];
 }
+export interface ToolCatalogItem {
+  name: string;
+  category: string;
+  targetKind: string;
+  active: boolean;
+  description: string;
+}
+export const tools = {
+  catalog: () => api<ToolCatalogItem[]>('/tools/catalog'),
+};
 
 // ─── Sandbox ───
 export interface SandboxStatus {

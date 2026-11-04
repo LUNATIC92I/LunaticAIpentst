@@ -4,6 +4,7 @@ import { AuditService } from '../common/audit.service';
 import { ScopeGuardService } from '../scope/scope-guard.service';
 import { SandboxService } from '../sandbox/sandbox.service';
 import { SandboxUnavailableError } from '../sandbox/sandbox.types';
+import { getAdapter } from '../tools/registry';
 import { EvidenceService } from './evidence.service';
 import { buildBaselinePlan, type PlanStep } from './plan';
 import { autoApproves, type PermissionMode } from './gating';
@@ -251,7 +252,8 @@ export class AgentService {
     // tool adapters (Phase 9); here we run a real, basic invocation. If no
     // sandbox backend is reachable we record the intent honestly rather than
     // fabricate output.
-    const argv = [step.tool ?? 'true', step.target];
+    const adapter = step.tool ? getAdapter(step.tool) : undefined;
+    const argv = adapter ? adapter.buildCommand(step.target) : [step.tool ?? 'true', step.target];
     const toolRun = await this.prisma.toolExecution.create({
       data: {
         taskId: missionId,
@@ -280,18 +282,39 @@ export class AgentService {
           finishedAt: new Date(),
         },
       });
-      await this.evidence.append({
+      const ev = await this.evidence.append({
         taskId: missionId,
         kind: 'command_output',
         toolRunId: toolRun.id,
         summary: `${step.tool} on ${step.target} (exit ${run.result.exitCode})`,
         content: output,
       });
-      await this.finish(
-        execId,
-        run.result.exitCode === 0 ? 'SUCCEEDED' : 'FAILED',
-        `${step.tool} exit ${run.result.exitCode}`,
-      );
+
+      // Parse structured findings from the tool output (evidence-backed).
+      let findingCount = 0;
+      if (adapter) {
+        const parsed = adapter.parse(run.result.stdout, run.result.stderr, run.result.exitCode);
+        for (const f of parsed.findings.slice(0, 200)) {
+          await this.prisma.finding.create({
+            data: {
+              taskId: missionId,
+              title: f.title.slice(0, 250),
+              description: f.description,
+              severity: f.severity as never,
+              state: f.state as never, // DETECTED — tool-detected, not auto-confirmed
+              cwe: f.cwe,
+              cve: f.cve,
+              owasp: f.owasp,
+              evidence: { connect: { id: ev.id } },
+            },
+          });
+          findingCount++;
+        }
+        await this.finish(execId, run.result.exitCode === 0 ? 'SUCCEEDED' : 'FAILED', `${step.tool}: ${parsed.summary}`);
+        return { outcome: run.result.exitCode === 0 ? 'SUCCEEDED' : 'FAILED', tool: step.tool, exitCode: run.result.exitCode, findings: findingCount };
+      }
+
+      await this.finish(execId, run.result.exitCode === 0 ? 'SUCCEEDED' : 'FAILED', `${step.tool} exit ${run.result.exitCode}`);
       return { outcome: run.result.exitCode === 0 ? 'SUCCEEDED' : 'FAILED', tool: step.tool, exitCode: run.result.exitCode };
     } catch (err) {
       if (err instanceof SandboxUnavailableError) {
