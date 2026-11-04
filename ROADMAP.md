@@ -14,11 +14,16 @@ Status legend: ✅ done · 🚧 in progress · ⬜ not started.
 - [x] `packages/scope-engine` authorization engine + unit tests
 - [ ] CI pipeline (lint/test/build)
 
-## Phase 2 — Auth & database ⬜
-- [ ] Prisma migrations + seed
-- [ ] Register / login / logout / password reset
-- [ ] MFA (TOTP), session management & revocation
-- [ ] RBAC + tenant isolation guards; login lockout; audit logging
+## Phase 2 — Auth & database 🚧
+- [x] Prisma migrations + seed (initial migration committed)
+- [x] NestJS API skeleton (config/env validation, Prisma module, health)
+- [x] Register / login / logout / refresh (token rotation)
+- [x] MFA (TOTP) enroll + confirm; MFA-gated login (verified end-to-end)
+- [x] Session management & revocation (logout, logout-all)
+- [x] RBAC guards (@Permissions) + JWT auth guard; login lockout; audit logging
+- [x] `@lunatic/security` pure package (scrypt, AES-GCM, TOTP) — 12 tests pass
+- [ ] Password reset flow (needs email provider + reset-token store)
+- [ ] API e2e test harness in CI (verified manually against local Postgres)
 
 ## Phase 3 — UI & dashboard ⬜
 - [ ] Design system (dark theme, tokens), shell/nav
