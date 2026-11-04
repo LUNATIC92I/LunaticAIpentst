@@ -6,6 +6,8 @@ import { validateEnv } from './config/env';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { PlatformModule } from './platform/platform.module';
+import { ScopeModule } from './scope/scope.module';
+import { MissionsModule } from './missions/missions.module';
 import { HealthController } from './health/health.controller';
 import { JwtAuthGuard } from './common/jwt-auth.guard';
 import { PermissionsGuard } from './common/permissions.guard';
@@ -16,8 +18,10 @@ import { PermissionsGuard } from './common/permissions.guard';
     // Global JWT so the APP_GUARD (JwtAuthGuard) can resolve JwtService.
     JwtModule.register({ global: true }),
     PrismaModule,
+    ScopeModule,
     AuthModule,
     PlatformModule,
+    MissionsModule,
   ],
   controllers: [HealthController],
   providers: [

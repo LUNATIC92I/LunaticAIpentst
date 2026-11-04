@@ -36,10 +36,16 @@ Status legend: ✅ done · 🚧 in progress · ⬜ not started.
 - [ ] Missions / Terminal / Browser / Reports screens (later phases; shown as
       "soon" in nav, non-navigable until their backends exist)
 
-## Phase 4 — Workspace & conversational engine ⬜
-- [ ] Mission CRUD + state machine
-- [ ] CHAT mode message pipeline + history
-- [ ] File attach in workspace; export results
+## Phase 4 — Workspace & conversational engine 🚧
+- [x] Mission CRUD + validated state machine (illegal transitions rejected)
+- [x] Authorized-scope management (host/ip/cidr) wired to the scope engine
+- [x] Server-side scope check with real DNS resolution + SSRF/rebind blocking
+- [x] Emergency stop (denies all scope checks while active)
+- [x] CHAT message pipeline + history; honest NOT_CONFIGURED notice until the
+      AI gateway (Phase 5) lands — no fabricated assistant replies
+- [x] Workspace UI (mission list + create, detail with state controls, Scope tab
+      with live target check, chat panel); tenant isolation enforced
+- [ ] File attach in workspace; export results (follow-up)
 
 ## Phase 5 — AI model management ⬜
 - [ ] Provider-agnostic gateway (Anthropic/OpenAI/Gemini/DeepSeek/OpenRouter)

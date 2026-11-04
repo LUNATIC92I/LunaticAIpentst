@@ -7,6 +7,8 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "noUncheckedIndexedAccess": false,
+    "declaration": false,
+    "declarationMap": false,
     "outDir": "dist",
     "baseUrl": ".",
     "types": ["node"]

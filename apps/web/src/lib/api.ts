@@ -137,3 +137,78 @@ export const platform = {
   me: () => api<Me>('/me'),
   dashboard: () => api<DashboardStats>('/dashboard/stats'),
 };
+
+// ─── Missions / workspace ───
+export type MissionStatus =
+  | 'DRAFT'
+  | 'SCOPING'
+  | 'PLANNING'
+  | 'RUNNING'
+  | 'PAUSED'
+  | 'AWAITING_APPROVAL'
+  | 'COMPLETED'
+  | 'FAILED'
+  | 'ARCHIVED';
+
+export interface Mission {
+  id: string;
+  name: string;
+  description: string | null;
+  status: MissionStatus;
+  mode: 'CHAT' | 'AGENT';
+  permissionMode: 'APPROVAL' | 'SUPERVISED' | 'AUTONOMOUS';
+  agentProfile: 'STANDARD' | 'PRO' | 'MAX';
+  emergencyStop: boolean;
+  updatedAt: string;
+  createdAt: string;
+  scopeEntries?: ScopeEntry[];
+  _count?: { messages?: number; findings?: number; scopeEntries?: number; toolRuns?: number; sandboxes?: number };
+}
+export interface ScopeEntry {
+  id: string;
+  type: 'host' | 'ip' | 'cidr';
+  value: string;
+  note: string | null;
+}
+export interface MissionMessage {
+  id: string;
+  role: 'user' | 'assistant' | 'system' | 'tool';
+  content: string;
+  metadata: Record<string, unknown> | null;
+  createdAt: string;
+}
+export interface ScopeDecision {
+  allowed: boolean;
+  code: string;
+  reason: string;
+  matched?: { type: string; value: string };
+  resolvedIps?: string[];
+}
+
+export const missions = {
+  list: () => api<Mission[]>('/missions'),
+  get: (id: string) => api<Mission>(`/missions/${id}`),
+  create: (payload: Partial<Pick<Mission, 'name' | 'description' | 'mode' | 'permissionMode' | 'agentProfile'>>) =>
+    api<Mission>('/missions', { method: 'POST', body: JSON.stringify(payload) }),
+  update: (id: string, payload: Record<string, unknown>) =>
+    api<Mission>(`/missions/${id}`, { method: 'PATCH', body: JSON.stringify(payload) }),
+  transition: (id: string, to: MissionStatus) =>
+    api<Mission>(`/missions/${id}/transition`, { method: 'POST', body: JSON.stringify({ to }) }),
+  emergencyStop: (id: string, on: boolean) =>
+    api<Mission>(`/missions/${id}/emergency-stop`, { method: on ? 'POST' : 'DELETE' }),
+  addScope: (id: string, entry: { type: string; value: string; note?: string }) =>
+    api<ScopeEntry>(`/missions/${id}/scope`, { method: 'POST', body: JSON.stringify(entry) }),
+  removeScope: (id: string, entryId: string) =>
+    api(`/missions/${id}/scope/${entryId}`, { method: 'DELETE' }),
+  scopeCheck: (id: string, target: string, active = true, allowPrivateRanges = false) =>
+    api<ScopeDecision>(`/missions/${id}/scope/check`, {
+      method: 'POST',
+      body: JSON.stringify({ target, active, allowPrivateRanges }),
+    }),
+  messages: (id: string) => api<MissionMessage[]>(`/missions/${id}/messages`),
+  postMessage: (id: string, content: string) =>
+    api<{ userMessage: MissionMessage; systemNotice: MissionMessage | null; aiStatus: string }>(
+      `/missions/${id}/messages`,
+      { method: 'POST', body: JSON.stringify({ content }) },
+    ),
+};
