@@ -271,6 +271,34 @@ export interface Finding {
   evidence: { id: string; kind: string; summary: string | null; hash: string }[];
 }
 
+// ─── Sandbox ───
+export interface SandboxStatus {
+  driver: string;
+  available: boolean;
+  caps: { cpu: number; memoryMb: number; diskMb: number; pids?: number };
+  wallclockLimit: number;
+  retentionSeconds: number;
+}
+export interface SandboxRecord {
+  id: string;
+  driver: string;
+  image: string;
+  status: string;
+  externalId: string | null;
+  createdAt: string;
+  events?: { kind: string; message: string | null; createdAt: string }[];
+}
+
+export const sandboxes = {
+  status: () => api<SandboxStatus>('/sandboxes/status'),
+  list: (missionId?: string) => api<SandboxRecord[]>(`/sandboxes${missionId ? `?missionId=${missionId}` : ''}`),
+  create: (missionId: string) =>
+    api<SandboxRecord | { error: string; message: string }>(`/sandboxes/mission/${missionId}`, { method: 'POST' }),
+};
+
+/** Base origin of the API (socket.io connects here, namespace /terminal). */
+export const API_ORIGIN = API_URL.replace(/\/api$/, '');
+
 export const agent = {
   plan: (id: string) => api<{ steps: PlanStep[]; executions: Execution[] }>(`/missions/${id}/agent/plan`, { method: 'POST' }),
   getPlan: (id: string) => api<{ steps: PlanStep[] } | null>(`/missions/${id}/agent/plan`),

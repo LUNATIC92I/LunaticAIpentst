@@ -74,10 +74,18 @@ Status legend: ✅ done · 🚧 in progress · ⬜ not started.
 - [x] Agent UI tab (plan, approvals, step/run, findings, integrity badge)
 - [ ] AI-assisted planning + real tool execution land with the sandbox (Phase 7/9)
 
-## Phase 7 — Terminal & sandbox ⬜
-- [ ] Sandbox lifecycle (create/start/stop/destroy) w/ resource caps
-- [ ] `xterm.js` terminal wired to sandbox PTY over WS
-- [ ] Egress filtering to authorized scope
+## Phase 7 — Terminal & sandbox 🚧
+- [x] Sandbox driver abstraction + Docker driver (create/start/stop/destroy/exec/PTY)
+- [x] Hardened container config: CapDrop ALL, no-new-privileges, read-only rootfs,
+      size-limited tmpfs, CPU/mem/PID caps, NO network by default. Unit-tested.
+- [x] SandboxService: lifecycle + persistence (Sandbox/SandboxEvent), retention
+      TTL + cleanup, resource caps from env, honest UNAVAILABLE when no backend
+- [x] `xterm.js` terminal wired to a sandbox PTY over an authenticated WebSocket
+      (socket.io, sandbox:execute-gated); commands never run on the app server
+- [x] Agent tool steps now execute in the sandbox when available (real exec,
+      captured as evidence); AWAITING_SANDBOX only when no backend is reachable
+- [ ] Fine-grained egress filtering to authorized scope (scaffolded: no-network
+      default + per-mission network hook; full egress proxy is a follow-up)
 
 ## Phase 8 — Integrated browser ⬜
 - [ ] Isolated headless browser viewer; HTTP response/header inspection

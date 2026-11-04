@@ -9,6 +9,7 @@ import { PlatformModule } from './platform/platform.module';
 import { ScopeModule } from './scope/scope.module';
 import { AiModule } from './ai/ai.module';
 import { MissionsModule } from './missions/missions.module';
+import { SandboxModule } from './sandbox/sandbox.module';
 import { AgentModule } from './agent/agent.module';
 import { HealthController } from './health/health.controller';
 import { JwtAuthGuard } from './common/jwt-auth.guard';
@@ -24,6 +25,7 @@ import { PermissionsGuard } from './common/permissions.guard';
     AiModule,
     AuthModule,
     PlatformModule,
+    SandboxModule,
     MissionsModule,
     AgentModule,
   ],

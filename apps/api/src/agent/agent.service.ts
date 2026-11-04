@@ -2,6 +2,8 @@ import { BadRequestException, Injectable, Logger, NotFoundException } from '@nes
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../common/audit.service';
 import { ScopeGuardService } from '../scope/scope-guard.service';
+import { SandboxService } from '../sandbox/sandbox.service';
+import { SandboxUnavailableError } from '../sandbox/sandbox.types';
 import { EvidenceService } from './evidence.service';
 import { buildBaselinePlan, type PlanStep } from './plan';
 import { autoApproves, type PermissionMode } from './gating';
@@ -17,6 +19,7 @@ export class AgentService {
     private readonly audit: AuditService,
     private readonly scopeGuard: ScopeGuardService,
     private readonly evidence: EvidenceService,
+    private readonly sandbox: SandboxService,
   ) {}
 
   private async mustOwn(orgId: string, missionId: string) {
@@ -243,27 +246,74 @@ export class AgentService {
       return { outcome: 'SUCCEEDED', resolvedIps: ips };
     }
 
-    // action === 'tool' — real execution requires the sandbox runner (Phase 7)
-    // and tool adapters (Phase 9). We record the intent honestly as blocked
-    // rather than fabricate output.
+    // action === 'tool' — run the tool inside the isolated sandbox when one is
+    // available. Rich argument construction + structured parsing land with the
+    // tool adapters (Phase 9); here we run a real, basic invocation. If no
+    // sandbox backend is reachable we record the intent honestly rather than
+    // fabricate output.
+    const argv = [step.tool ?? 'true', step.target];
     const toolRun = await this.prisma.toolExecution.create({
       data: {
         taskId: missionId,
         executionId: execId,
         tool: step.tool ?? 'tool',
-        command: `${step.tool} ${step.target}`,
+        command: argv.join(' '),
         target: step.target,
-        status: 'BLOCKED',
+        status: 'RUNNING',
         scopeApproved: true,
+        startedAt: new Date(),
       },
     });
-    await this.finish(execId, 'BLOCKED', 'Tool execution requires a sandbox runner (Phase 7) — not yet available.');
-    return {
-      outcome: 'AWAITING_SANDBOX',
-      tool: step.tool,
-      toolRunId: toolRun.id,
-      message: 'Target authorized; execution deferred until the sandbox runner is available.',
-    };
+
+    try {
+      const run = await this.sandbox.runTool(orgId, missionId, argv);
+      const output = (run.result.stdout || '') + (run.result.stderr ? `\n${run.result.stderr}` : '');
+      await this.prisma.toolOutput.create({
+        data: { toolRunId: toolRun.id, stream: 'result', content: output.slice(0, 100_000), bytes: output.length },
+      });
+      await this.prisma.toolExecution.update({
+        where: { id: toolRun.id },
+        data: {
+          status: run.result.exitCode === 0 ? 'SUCCEEDED' : 'FAILED',
+          exitCode: run.result.exitCode,
+          sandboxId: run.sandboxId,
+          finishedAt: new Date(),
+        },
+      });
+      await this.evidence.append({
+        taskId: missionId,
+        kind: 'command_output',
+        toolRunId: toolRun.id,
+        summary: `${step.tool} on ${step.target} (exit ${run.result.exitCode})`,
+        content: output,
+      });
+      await this.finish(
+        execId,
+        run.result.exitCode === 0 ? 'SUCCEEDED' : 'FAILED',
+        `${step.tool} exit ${run.result.exitCode}`,
+      );
+      return { outcome: run.result.exitCode === 0 ? 'SUCCEEDED' : 'FAILED', tool: step.tool, exitCode: run.result.exitCode };
+    } catch (err) {
+      if (err instanceof SandboxUnavailableError) {
+        await this.prisma.toolExecution.update({
+          where: { id: toolRun.id },
+          data: { status: 'BLOCKED', finishedAt: new Date() },
+        });
+        await this.finish(execId, 'BLOCKED', 'Tool execution requires a sandbox runner — backend not available.');
+        return {
+          outcome: 'AWAITING_SANDBOX',
+          tool: step.tool,
+          toolRunId: toolRun.id,
+          message: 'Target authorized; execution deferred until a sandbox backend is reachable.',
+        };
+      }
+      await this.prisma.toolExecution.update({
+        where: { id: toolRun.id },
+        data: { status: 'FAILED', finishedAt: new Date() },
+      });
+      await this.finish(execId, 'FAILED', String(err).slice(0, 200));
+      return { outcome: 'FAILED', tool: step.tool, error: String(err).slice(0, 200) };
+    }
   }
 
   private async finish(execId: string, status: 'SUCCEEDED' | 'BLOCKED' | 'FAILED', summary: string) {
