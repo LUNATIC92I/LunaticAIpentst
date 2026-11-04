@@ -299,6 +299,36 @@ export const sandboxes = {
 /** Base origin of the API (socket.io connects here, namespace /terminal). */
 export const API_ORIGIN = API_URL.replace(/\/api$/, '');
 
+// ─── Integrated browser ───
+export interface BrowserResult {
+  blocked?: boolean;
+  decision?: { code: string; reason: string };
+  finalUrl?: string;
+  status?: number;
+  statusText?: string;
+  headers?: Record<string, string>;
+  redirectChain?: string[];
+  blockedRequests?: string[];
+  title?: string;
+  textExcerpt?: string;
+  screenshot?: string;
+}
+export interface BrowserHistoryItem {
+  id: string;
+  command: string;
+  target: string | null;
+  status: string;
+  createdAt: string;
+  outputs?: { content: string }[];
+}
+
+export const browser = {
+  status: (missionId: string) => api<{ available: boolean }>(`/missions/${missionId}/browser/status`),
+  visit: (missionId: string, url: string) =>
+    api<BrowserResult>(`/missions/${missionId}/browser/visit`, { method: 'POST', body: JSON.stringify({ url }) }),
+  history: (missionId: string) => api<BrowserHistoryItem[]>(`/missions/${missionId}/browser/history`),
+};
+
 export const agent = {
   plan: (id: string) => api<{ steps: PlanStep[]; executions: Execution[] }>(`/missions/${id}/agent/plan`, { method: 'POST' }),
   getPlan: (id: string) => api<{ steps: PlanStep[] } | null>(`/missions/${id}/agent/plan`),

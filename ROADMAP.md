@@ -87,9 +87,16 @@ Status legend: ✅ done · 🚧 in progress · ⬜ not started.
 - [ ] Fine-grained egress filtering to authorized scope (scaffolded: no-network
       default + per-mission network hook; full egress proxy is a follow-up)
 
-## Phase 8 — Integrated browser ⬜
-- [ ] Isolated headless browser viewer; HTTP response/header inspection
-- [ ] SSRF / internal-network protections; history per mission
+## Phase 8 — Integrated browser ✅
+- [x] Isolated headless-browser viewer (Playwright/Chromium): render + screenshot
+- [x] HTTP response/header inspection, status, redirect chain, page text
+- [x] Scope-gated top-level navigation + always-on per-request SSRF filter
+      (blocks private/reserved ranges incl. metadata, non-http(s), unresolved);
+      downloads disabled. Filter unit-tested (8 tests).
+- [x] Per-mission history; visits persisted as browser tool-runs + hash-chained
+      evidence (http_response + screenshot)
+- [x] Browser UI page (URL bar, screenshot, headers, redirects, blocked
+      sub-requests, history). Verified LIVE against a public in-scope target.
 
 ## Phase 9 — Recon & analysis tools ⬜
 - [ ] Adapters (nmap, subfinder, httpx, nuclei, nikto, testssl, semgrep,
