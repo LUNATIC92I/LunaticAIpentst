@@ -61,9 +61,18 @@ Status legend: ✅ done · 🚧 in progress · ⬜ not started.
 - [x] Provider management UI in Settings (add/test/remove, admin:providers-gated)
 - [ ] Streaming responses (SSE) + per-model cost config (follow-up)
 
-## Phase 6 — Autonomous agent & orchestration ⬜
-- [ ] Planner, tool-selector, executor loop; persistent mission state
-- [ ] Permission modes (APPROVAL/SUPERVISED/AUTONOMOUS) gating
+## Phase 6 — Autonomous agent & orchestration 🚧
+- [x] Deterministic baseline planner (scope → ordered, scope-gated steps); unit-tested
+- [x] Orchestrator loop: plan → gate → scope-check → execute → evidence →
+      persist (TaskPlan/TaskExecution/ToolExecution/Evidence/Finding)
+- [x] Permission-mode gating (APPROVAL/SUPERVISED/AUTONOMOUS) with per-step
+      approve/reject; emergency stop halts the loop
+- [x] Real executable steps now: scope_verify + dns_recon (DNS-resolving,
+      scope-gated). Tool steps honestly reported AWAITING_SANDBOX — no fake output
+- [x] Hash-chained, tamper-evident evidence store + chain verification; unit-tested
+- [x] Evidence-backed findings (never auto-marked CONFIRMED)
+- [x] Agent UI tab (plan, approvals, step/run, findings, integrity badge)
+- [ ] AI-assisted planning + real tool execution land with the sandbox (Phase 7/9)
 
 ## Phase 7 — Terminal & sandbox ⬜
 - [ ] Sandbox lifecycle (create/start/stop/destroy) w/ resource caps

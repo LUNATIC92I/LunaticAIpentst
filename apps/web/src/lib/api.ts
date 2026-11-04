@@ -243,3 +243,42 @@ export const missions = {
       { method: 'POST', body: JSON.stringify({ content }) },
     ),
 };
+
+// ─── Agent orchestration ───
+export interface PlanStep {
+  index: number;
+  title: string;
+  action: 'scope_verify' | 'dns_recon' | 'tool';
+  target: string;
+  tool?: string;
+  rationale: string;
+  risk: 'low' | 'medium' | 'high';
+}
+export interface Execution {
+  id: string;
+  stepIndex: number;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'RUNNING' | 'SUCCEEDED' | 'FAILED' | 'BLOCKED';
+  summary: string | null;
+  scopeDecision?: { code: string; reason: string; resolvedIps?: string[] } | null;
+  toolRuns?: { id: string; tool: string; command: string; status: string; outputs?: { stream: string; content: string }[] }[];
+}
+export interface Finding {
+  id: string;
+  title: string;
+  description: string | null;
+  state: string;
+  severity: string;
+  evidence: { id: string; kind: string; summary: string | null; hash: string }[];
+}
+
+export const agent = {
+  plan: (id: string) => api<{ steps: PlanStep[]; executions: Execution[] }>(`/missions/${id}/agent/plan`, { method: 'POST' }),
+  getPlan: (id: string) => api<{ steps: PlanStep[] } | null>(`/missions/${id}/agent/plan`),
+  executions: (id: string) => api<Execution[]>(`/missions/${id}/agent/executions`),
+  approve: (id: string, execId: string, approved: boolean) =>
+    api<Execution>(`/missions/${id}/agent/executions/${execId}/approve`, { method: 'POST', body: JSON.stringify({ approved }) }),
+  advance: (id: string) => api<{ status: string; message?: string; action?: string; result?: unknown }>(`/missions/${id}/agent/advance`, { method: 'POST' }),
+  run: (id: string) => api<unknown[]>(`/missions/${id}/agent/run`, { method: 'POST' }),
+  findings: (id: string) => api<Finding[]>(`/missions/${id}/agent/findings`),
+  verifyEvidence: (id: string) => api<{ count: number; valid: boolean; brokenAtIndex?: number }>(`/missions/${id}/agent/evidence/verify`),
+};

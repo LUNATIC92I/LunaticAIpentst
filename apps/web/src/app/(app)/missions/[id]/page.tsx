@@ -8,6 +8,7 @@ import { missions, type Mission, type MissionStatus } from '@/lib/api';
 import { StatusBadge } from '@/components/missions/StatusBadge';
 import { ScopePanel } from '@/components/missions/ScopePanel';
 import { ChatPanel } from '@/components/missions/ChatPanel';
+import { AgentPanel } from '@/components/missions/AgentPanel';
 
 const NEXT_ACTIONS: { label: string; to: MissionStatus; icon: typeof Play }[] = [
   { label: 'Start scoping', to: 'SCOPING', icon: Crosshair },
@@ -19,7 +20,7 @@ const NEXT_ACTIONS: { label: string; to: MissionStatus; icon: typeof Play }[] = 
 export default function MissionDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [mission, setMission] = useState<Mission | null>(null);
-  const [tab, setTab] = useState<'chat' | 'scope'>('chat');
+  const [tab, setTab] = useState<'chat' | 'agent' | 'scope'>('chat');
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
@@ -95,7 +96,7 @@ export default function MissionDetailPage() {
 
       {/* Tabs */}
       <div className="flex gap-1 border-b border-border">
-        {(['chat', 'scope'] as const).map((t) => (
+        {(['chat', 'agent', 'scope'] as const).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -103,13 +104,15 @@ export default function MissionDetailPage() {
               tab === t ? 'border-accent text-accent' : 'border-transparent text-text-muted hover:text-text'
             }`}
           >
-            {t === 'chat' ? 'Workspace' : 'Scope'}
+            {t === 'chat' ? 'Workspace' : t === 'agent' ? 'Agent' : 'Scope'}
           </button>
         ))}
       </div>
 
       <div className="card p-5">
-        {tab === 'chat' ? <ChatPanel missionId={mission.id} /> : <ScopePanel mission={mission} onChange={load} />}
+        {tab === 'chat' && <ChatPanel missionId={mission.id} />}
+        {tab === 'agent' && <AgentPanel mission={mission} />}
+        {tab === 'scope' && <ScopePanel mission={mission} onChange={load} />}
       </div>
     </div>
   );
