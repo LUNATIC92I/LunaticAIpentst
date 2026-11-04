@@ -47,9 +47,19 @@ Status legend: ✅ done · 🚧 in progress · ⬜ not started.
       with live target check, chat panel); tenant isolation enforced
 - [ ] File attach in workspace; export results (follow-up)
 
-## Phase 5 — AI model management ⬜
-- [ ] Provider-agnostic gateway (Anthropic/OpenAI/Gemini/DeepSeek/OpenRouter)
-- [ ] Encrypted key vault; token/cost accounting; STANDARD/PRO/MAX profiles
+## Phase 5 — AI model management 🚧
+- [x] `@lunatic/ai` provider-agnostic gateway with adapters for Anthropic,
+      OpenAI, Gemini, DeepSeek, OpenRouter (+ CUSTOM, + dev MOCK); pure
+      request/response mappers, 10 unit tests pass
+- [x] STANDARD/PRO/MAX profiles = real generation configs (tokens/temp/tool budget)
+- [x] Encrypted API-key vault (AES-256-GCM via @lunatic/security); keys never
+      logged or returned to the browser (only lastFour)
+- [x] AI module: provider/model CRUD, connectivity test, org-scoped resolution
+- [x] Token/cost accounting → UsageRecord (flows into dashboard aiTokens)
+- [x] CHAT wired to the gateway (real assistant replies; honest NOT_CONFIGURED
+      / error notices otherwise). Verified end-to-end via the dev provider.
+- [x] Provider management UI in Settings (add/test/remove, admin:providers-gated)
+- [ ] Streaming responses (SSE) + per-model cost config (follow-up)
 
 ## Phase 6 — Autonomous agent & orchestration ⬜
 - [ ] Planner, tool-selector, executor loop; persistent mission state

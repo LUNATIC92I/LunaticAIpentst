@@ -7,6 +7,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { PlatformModule } from './platform/platform.module';
 import { ScopeModule } from './scope/scope.module';
+import { AiModule } from './ai/ai.module';
 import { MissionsModule } from './missions/missions.module';
 import { HealthController } from './health/health.controller';
 import { JwtAuthGuard } from './common/jwt-auth.guard';
@@ -19,6 +20,7 @@ import { PermissionsGuard } from './common/permissions.guard';
     JwtModule.register({ global: true }),
     PrismaModule,
     ScopeModule,
+    AiModule,
     AuthModule,
     PlatformModule,
     MissionsModule,

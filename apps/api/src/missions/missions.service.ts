@@ -6,8 +6,10 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../common/audit.service';
 import { ScopeGuardService } from '../scope/scope-guard.service';
+import { AiService } from '../ai/ai.service';
 import { canTransition } from './mission-state';
 import type { ScopeEntry } from '@lunatic/scope-engine';
+import type { ChatMessage, AgentProfile } from '@lunatic/ai';
 import type {
   AddScopeEntryDto,
   CreateMissionDto,
@@ -17,15 +19,23 @@ import type {
 } from './missions.dto';
 import type { TaskStatus } from '@lunatic/database';
 
-/** True if at least one AI provider key is present in the environment. */
-function aiConfigured(): boolean {
-  return Boolean(
-    process.env.ANTHROPIC_API_KEY ||
-      process.env.OPENAI_API_KEY ||
-      process.env.GEMINI_API_KEY ||
-      process.env.DEEPSEEK_API_KEY ||
-      process.env.OPENROUTER_API_KEY,
-  );
+/**
+ * System prompt for CHAT mode. It binds the assistant to authorized,
+ * scope-limited behaviour. The scope guard still enforces every active action
+ * server-side regardless of what the model is told — this prompt cannot widen
+ * authority, it only sets expectations for the conversation.
+ */
+function securitySystemPrompt(mission: { name: string; scopeSummary: unknown }): string {
+  const scope = JSON.stringify(mission.scopeSummary ?? []);
+  return [
+    'You are a cybersecurity assistant inside the LUNATIC PENTEST AI platform.',
+    'You support AUTHORIZED, in-scope security testing only.',
+    `Mission: "${mission.name}". Authorized scope entries: ${scope}.`,
+    'Never suggest acting on targets outside the authorized scope. All active',
+    'operations are independently enforced by the platform scope guard; do not',
+    'claim to have run a tool or confirmed a vulnerability unless evidence exists.',
+    'Distinguish potential vs. detected vs. reproduced vs. confirmed findings.',
+  ].join(' ');
 }
 
 @Injectable()
@@ -34,6 +44,7 @@ export class MissionsService {
     private readonly prisma: PrismaService,
     private readonly audit: AuditService,
     private readonly scopeGuard: ScopeGuardService,
+    private readonly ai: AiService,
   ) {}
 
   /** Load a mission ensuring it belongs to the caller's org (tenant isolation). */
@@ -183,27 +194,63 @@ export class MissionsService {
   }
 
   async postMessage(orgId: string, id: string, actorId: string, dto: PostMessageDto) {
-    await this.mustOwn(orgId, id);
+    const mission = await this.mustOwn(orgId, id);
     const userMessage = await this.prisma.taskMessage.create({
       data: { taskId: id, role: 'user', content: dto.content },
     });
     await this.audit.record({ orgId, actorId, action: 'mission.message', target: id });
 
-    // The AI gateway lands in Phase 5. Until a provider is configured we record
-    // an honest system notice instead of fabricating an assistant response.
-    let systemNotice = null;
-    if (!aiConfigured()) {
-      systemNotice = await this.prisma.taskMessage.create({
+    const configured = await this.ai.isConfigured(orgId);
+    if (!configured) {
+      // Honest notice instead of a fabricated assistant response.
+      const systemNotice = await this.prisma.taskMessage.create({
         data: {
           taskId: id,
           role: 'system',
           content:
-            'AI provider not configured. Configure a provider key (Settings → AI providers) to receive assistant responses. Your message has been saved to the mission history.',
+            'AI provider not configured. Add a provider (Admin → AI providers) to receive assistant responses. Your message has been saved to the mission history.',
           metadata: { reason: 'ai_not_configured' },
         },
       });
+      return { userMessage, systemNotice, assistantMessage: null, aiStatus: 'NOT_CONFIGURED' };
     }
 
-    return { userMessage, systemNotice, aiStatus: aiConfigured() ? 'CONFIGURED' : 'NOT_CONFIGURED' };
+    // Build model context from the real conversation (exclude internal notices).
+    const history = await this.prisma.taskMessage.findMany({
+      where: { taskId: id },
+      orderBy: { createdAt: 'asc' },
+    });
+    const messages: ChatMessage[] = history
+      .filter((m) => m.role === 'user' || m.role === 'assistant')
+      .map((m) => ({ role: m.role as 'user' | 'assistant', content: m.content }));
+
+    try {
+      const res = await this.ai.chat(orgId, {
+        system: securitySystemPrompt(mission),
+        messages,
+        profile: mission.agentProfile as AgentProfile,
+      });
+      const assistantMessage = await this.prisma.taskMessage.create({
+        data: {
+          taskId: id,
+          role: 'assistant',
+          content: res.content,
+          inputTokens: res.usage.inputTokens,
+          outputTokens: res.usage.outputTokens,
+          metadata: { model: res.model },
+        },
+      });
+      return { userMessage, assistantMessage, systemNotice: null, aiStatus: 'CONFIGURED' };
+    } catch (err) {
+      const systemNotice = await this.prisma.taskMessage.create({
+        data: {
+          taskId: id,
+          role: 'system',
+          content: `Assistant request failed: ${String(err).slice(0, 300)}`,
+          metadata: { reason: 'ai_error' },
+        },
+      });
+      return { userMessage, systemNotice, assistantMessage: null, aiStatus: 'ERROR' };
+    }
   }
 }

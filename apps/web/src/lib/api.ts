@@ -185,6 +185,37 @@ export interface ScopeDecision {
   resolvedIps?: string[];
 }
 
+// ─── AI providers ───
+export interface AiProvider {
+  id: string;
+  kind: string;
+  label: string;
+  baseUrl: string | null;
+  state: string;
+  models: { id: string; name: string; displayName: string | null; enabled: boolean }[];
+  keyLastFour: string | null;
+}
+export interface ProviderTestResult {
+  ok: boolean;
+  model?: string;
+  usage?: { inputTokens: number; outputTokens: number };
+  error?: string;
+}
+
+export const ai = {
+  status: () => api<{ configured: boolean }>('/ai/status'),
+  providers: () => api<AiProvider[]>('/ai/providers'),
+  addProvider: (payload: {
+    kind: string;
+    label: string;
+    baseUrl?: string;
+    apiKey?: string;
+    defaultModel: string;
+  }) => api<AiProvider>('/ai/providers', { method: 'POST', body: JSON.stringify(payload) }),
+  testProvider: (id: string) => api<ProviderTestResult>(`/ai/providers/${id}/test`, { method: 'POST' }),
+  removeProvider: (id: string) => api(`/ai/providers/${id}`, { method: 'DELETE' }),
+};
+
 export const missions = {
   list: () => api<Mission[]>('/missions'),
   get: (id: string) => api<Mission>(`/missions/${id}`),

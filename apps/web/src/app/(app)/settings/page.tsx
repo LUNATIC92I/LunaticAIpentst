@@ -2,6 +2,7 @@
 
 import { useAuth } from '@/lib/auth';
 import { ShieldCheck, ShieldAlert, KeyRound } from 'lucide-react';
+import { AiProviders } from '@/components/settings/AiProviders';
 
 export default function SettingsPage() {
   const { me } = useAuth();
@@ -45,6 +46,8 @@ export default function SettingsPage() {
           </span>
         </div>
       </section>
+
+      {me.permissions.includes('admin:providers') && <AiProviders />}
 
       <section className="card p-5">
         <h2 className="mb-4 flex items-center gap-2 text-sm font-medium text-text">

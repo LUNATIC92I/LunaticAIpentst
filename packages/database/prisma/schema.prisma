@@ -220,6 +220,9 @@ enum ProviderKind {
   DEEPSEEK
   OPENROUTER
   CUSTOM
+  // Development-only echo provider (never a real model). Lets the chat/agent
+  // pipeline be exercised without a provider key.
+  MOCK
 }
 
 enum ConfigState {
