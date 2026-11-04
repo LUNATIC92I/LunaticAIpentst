@@ -5,6 +5,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { validateEnv } from './config/env';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
+import { PlatformModule } from './platform/platform.module';
 import { HealthController } from './health/health.controller';
 import { JwtAuthGuard } from './common/jwt-auth.guard';
 import { PermissionsGuard } from './common/permissions.guard';
@@ -16,6 +17,7 @@ import { PermissionsGuard } from './common/permissions.guard';
     JwtModule.register({ global: true }),
     PrismaModule,
     AuthModule,
+    PlatformModule,
   ],
   controllers: [HealthController],
   providers: [

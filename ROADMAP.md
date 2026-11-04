@@ -25,10 +25,16 @@ Status legend: ✅ done · 🚧 in progress · ⬜ not started.
 - [ ] Password reset flow (needs email provider + reset-token store)
 - [ ] API e2e test harness in CI (verified manually against local Postgres)
 
-## Phase 3 — UI & dashboard ⬜
-- [ ] Design system (dark theme, tokens), shell/nav
-- [ ] Dashboard with live stats + charts
-- [ ] Auth screens, settings
+## Phase 3 — UI & dashboard 🚧
+- [x] Next.js (App Router) + Tailwind dark design system (turquoise/electric-blue)
+- [x] App shell (sidebar + topbar), responsive, auth-guarded layout
+- [x] Auth screens (login w/ MFA step, register) wired to the API
+- [x] Dashboard with live stats + interactive charts (Recharts), fed by a real
+      tenant-scoped `/api/dashboard/stats` endpoint
+- [x] Settings page (account, MFA status, permissions) from `/api/me`
+- [x] API client with token storage + automatic refresh; `next build` passes
+- [ ] Missions / Terminal / Browser / Reports screens (later phases; shown as
+      "soon" in nav, non-navigable until their backends exist)
 
 ## Phase 4 — Workspace & conversational engine ⬜
 - [ ] Mission CRUD + state machine

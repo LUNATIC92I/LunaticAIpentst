@@ -34,3 +34,6 @@ coverage/
 # runtime / evidence (never commit real evidence artifacts)
 evidence-store/
 sandbox-data/
+
+# next
+next-env.d.ts
