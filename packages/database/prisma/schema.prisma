@@ -1,0 +1,660 @@
+// LUNATIC PENTEST AI — data model.
+// Multi-tenant: nearly everything hangs off an Organization for isolation.
+// See ARCHITECTURE.md §3.3 and the per-table comments below.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────── Identity & tenancy ────────────────────────────
+
+model User {
+  id                String   @id @default(cuid())
+  email             String   @unique
+  passwordHash      String
+  displayName       String?
+  isActive          Boolean  @default(true)
+  isSuspended       Boolean  @default(false)
+  emailVerifiedAt   DateTime?
+  // MFA (TOTP)
+  mfaEnabled        Boolean  @default(false)
+  mfaSecret         String?  // encrypted at rest
+  mfaRecoveryCodes  String[] @default([])
+  // Login protection
+  failedLoginCount  Int      @default(0)
+  lockedUntil       DateTime?
+  lastLoginAt       DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  memberships   Membership[]
+  sessions      Session[]
+  apiKeys       ApiKey[]
+  tasks         Task[]
+  auditLogs     AuditLog[]
+  notifications Notification[]
+  loginEvents   LoginEvent[]
+}
+
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  memberships   Membership[]
+  subscriptions Subscription[]
+  invoices      Invoice[]
+  usageCredits  UsageCredit[]
+  aiProviders   AiProvider[]
+  tasks         Task[]
+  files         FileObject[]
+  reports       Report[]
+  auditLogs     AuditLog[]
+  usageRecords  UsageRecord[]
+}
+
+model Membership {
+  id      String   @id @default(cuid())
+  userId  String
+  orgId   String
+  roleId  String
+  createdAt DateTime @default(now())
+
+  user User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  org  Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  role Role         @relation(fields: [roleId], references: [id])
+
+  @@unique([userId, orgId])
+  @@index([orgId])
+}
+
+model Role {
+  id          String   @id @default(cuid())
+  name        String   // e.g. OWNER, ADMIN, OPERATOR, VIEWER
+  description String?
+  isSystem    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  memberships     Membership[]
+  rolePermissions RolePermission[]
+
+  @@unique([name])
+}
+
+model Permission {
+  id          String  @id @default(cuid())
+  key         String  @unique // e.g. mission:create, sandbox:execute, admin:users
+  description String?
+
+  rolePermissions RolePermission[]
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  refreshHash  String   // hashed refresh token
+  userAgent    String?
+  ip           String?
+  expiresAt    DateTime
+  revokedAt    DateTime?
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model LoginEvent {
+  id        String   @id @default(cuid())
+  userId    String?
+  email     String
+  success   Boolean
+  ip        String?
+  userAgent String?
+  reason    String?
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([email])
+}
+
+// ─────────────────────────── Billing & usage ───────────────────────────────
+
+enum PlanTier {
+  FREE
+  PRO
+  PRO_PLUS
+  ULTRA
+  TEAM
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  TRIALING
+}
+
+model Subscription {
+  id                   String             @id @default(cuid())
+  orgId                String
+  tier                 PlanTier           @default(FREE)
+  status               SubscriptionStatus @default(ACTIVE)
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  currentPeriodEnd     DateTime?
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  org Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+}
+
+model Invoice {
+  id              String   @id @default(cuid())
+  orgId           String
+  stripeInvoiceId String?
+  amountCents     Int
+  currency        String   @default("usd")
+  status          String   // draft, open, paid, void, uncollectible
+  issuedAt        DateTime @default(now())
+  paidAt          DateTime?
+
+  org Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+}
+
+model UsageCredit {
+  id         String   @id @default(cuid())
+  orgId      String
+  balance    Int      @default(0) // credits remaining
+  grantedAt  DateTime @default(now())
+  expiresAt  DateTime?
+  reason     String?
+
+  org Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+}
+
+model UsageRecord {
+  id         String   @id @default(cuid())
+  orgId      String
+  kind       String   // ai_tokens, sandbox_seconds, tool_run, report
+  quantity   Int
+  unitCost   Int      @default(0) // in credits or micro-cents
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  org Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId, kind])
+}
+
+// ─────────────────────────── AI providers & keys ───────────────────────────
+
+enum ProviderKind {
+  ANTHROPIC
+  OPENAI
+  GEMINI
+  DEEPSEEK
+  OPENROUTER
+  CUSTOM
+}
+
+enum ConfigState {
+  NOT_CONFIGURED
+  CONFIGURED
+  DISABLED
+}
+
+model AiProvider {
+  id        String       @id @default(cuid())
+  orgId     String
+  kind      ProviderKind
+  label     String
+  baseUrl   String?
+  state     ConfigState  @default(NOT_CONFIGURED)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  org    Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  models AiModel[]
+  apiKeys ApiKey[]
+
+  @@index([orgId])
+}
+
+model AiModel {
+  id             String   @id @default(cuid())
+  providerId     String
+  name           String   // provider model id
+  displayName    String?
+  contextWindow  Int?
+  inputCostMicro Int?     // micro-cents per input token
+  outputCostMicro Int?
+  enabled        Boolean  @default(true)
+
+  provider AiProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@index([providerId])
+}
+
+model ApiKey {
+  id            String   @id @default(cuid())
+  ownerUserId   String?
+  providerId    String?
+  label         String
+  // Envelope-encrypted secret. Never returned to the browser, never logged.
+  encryptedKey  String
+  keyIv         String
+  keyTag        String
+  lastFour      String?
+  createdAt     DateTime @default(now())
+  revokedAt     DateTime?
+
+  owner    User?       @relation(fields: [ownerUserId], references: [id], onDelete: Cascade)
+  provider AiProvider? @relation(fields: [providerId], references: [id], onDelete: SetNull)
+
+  @@index([providerId])
+}
+
+// ─────────────────────────── Missions (Tasks) ──────────────────────────────
+
+enum TaskStatus {
+  DRAFT
+  SCOPING
+  PLANNING
+  RUNNING
+  PAUSED
+  AWAITING_APPROVAL
+  COMPLETED
+  FAILED
+  ARCHIVED
+}
+
+enum TaskMode {
+  CHAT
+  AGENT
+}
+
+enum PermissionMode {
+  APPROVAL
+  SUPERVISED
+  AUTONOMOUS
+}
+
+enum AgentProfile {
+  STANDARD
+  PRO
+  MAX
+}
+
+// A "mission". Named Task to match the data-model spec.
+model Task {
+  id             String         @id @default(cuid())
+  orgId          String
+  ownerId        String
+  name           String
+  description    String?
+  status         TaskStatus     @default(DRAFT)
+  mode           TaskMode       @default(CHAT)
+  permissionMode PermissionMode @default(APPROVAL)
+  agentProfile   AgentProfile   @default(STANDARD)
+  // Authorized scope: list of host/ip/cidr entries validated by scope-engine.
+  // Stored as structured JSON and mirrored in ScopeEntry for querying.
+  scopeSummary   Json?
+  emergencyStop  Boolean        @default(false)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  org          Organization    @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  owner        User            @relation(fields: [ownerId], references: [id])
+  messages     TaskMessage[]
+  plans        TaskPlan[]
+  executions   TaskExecution[]
+  toolRuns     ToolExecution[]
+  sandboxes    Sandbox[]
+  files        FileObject[]
+  findings     Finding[]
+  reports      Report[]
+  scopeEntries ScopeEntry[]
+
+  @@index([orgId])
+  @@index([ownerId])
+}
+
+// Authorized target entries. The scope guard checks against these, server-side.
+model ScopeEntry {
+  id        String   @id @default(cuid())
+  taskId    String
+  // type: host | ip | cidr
+  type      String
+  value     String
+  note      String?
+  createdAt DateTime @default(now())
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@index([taskId])
+}
+
+model TaskMessage {
+  id        String   @id @default(cuid())
+  taskId    String
+  role      String   // user | assistant | system | tool
+  content   String
+  metadata  Json?
+  // Token/cost accounting for AI turns
+  inputTokens  Int?
+  outputTokens Int?
+  createdAt DateTime @default(now())
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@index([taskId])
+}
+
+model TaskPlan {
+  id        String   @id @default(cuid())
+  taskId    String
+  version   Int      @default(1)
+  // Ordered steps with tool selection and rationale.
+  steps     Json
+  createdAt DateTime @default(now())
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@index([taskId])
+}
+
+enum ExecutionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  RUNNING
+  SUCCEEDED
+  FAILED
+  BLOCKED
+}
+
+// A single step execution within the agent loop.
+model TaskExecution {
+  id          String          @id @default(cuid())
+  taskId      String
+  planId      String?
+  stepIndex   Int
+  status      ExecutionStatus @default(PENDING)
+  summary     String?
+  // Scope-guard decision snapshot for auditability.
+  scopeDecision Json?
+  startedAt   DateTime?
+  finishedAt  DateTime?
+  createdAt   DateTime        @default(now())
+
+  task      Task            @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  toolRuns  ToolExecution[]
+
+  @@index([taskId])
+}
+
+// ─────────────────────────── Tools & outputs ───────────────────────────────
+
+model ToolExecution {
+  id            String          @id @default(cuid())
+  taskId        String
+  executionId   String?
+  sandboxId     String?
+  tool          String          // nmap, httpx, nuclei, semgrep, ...
+  command       String          // exact command line (for traceability)
+  target        String?         // resolved target the scope guard approved
+  status        ExecutionStatus @default(PENDING)
+  exitCode      Int?
+  scopeApproved Boolean         @default(false)
+  startedAt     DateTime?
+  finishedAt    DateTime?
+  createdAt     DateTime        @default(now())
+
+  task      Task           @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  execution TaskExecution? @relation(fields: [executionId], references: [id], onDelete: SetNull)
+  sandbox   Sandbox?       @relation(fields: [sandboxId], references: [id], onDelete: SetNull)
+  outputs   ToolOutput[]
+  evidence  Evidence[]
+
+  @@index([taskId])
+}
+
+model ToolOutput {
+  id         String   @id @default(cuid())
+  toolRunId  String
+  stream     String   // stdout | stderr | result
+  content    String
+  // For large outputs this points to an S3 object instead of inline content.
+  objectKey  String?
+  bytes      Int?
+  createdAt  DateTime @default(now())
+
+  toolRun ToolExecution @relation(fields: [toolRunId], references: [id], onDelete: Cascade)
+
+  @@index([toolRunId])
+}
+
+// ─────────────────────────── Sandboxes ─────────────────────────────────────
+
+enum SandboxStatus {
+  CREATING
+  RUNNING
+  STOPPED
+  DESTROYED
+  ERROR
+}
+
+model Sandbox {
+  id          String        @id @default(cuid())
+  taskId      String
+  driver      String        // docker | e2b
+  image       String
+  status      SandboxStatus @default(CREATING)
+  externalId  String?       // container id / e2b sandbox id
+  cpuLimit    Int?
+  memoryLimit Int?          // MB
+  diskLimit   Int?          // MB
+  wallclockLimit Int?       // seconds
+  retentionExpiresAt DateTime?
+  createdAt   DateTime      @default(now())
+  destroyedAt DateTime?
+
+  task     Task            @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  events   SandboxEvent[]
+  toolRuns ToolExecution[]
+
+  @@index([taskId])
+}
+
+model SandboxEvent {
+  id        String   @id @default(cuid())
+  sandboxId String
+  kind      String   // created, started, stopped, limit_hit, destroyed, error
+  message   String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  sandbox Sandbox @relation(fields: [sandboxId], references: [id], onDelete: Cascade)
+
+  @@index([sandboxId])
+}
+
+// ─────────────────────────── Files ─────────────────────────────────────────
+
+model FileObject {
+  id          String   @id @default(cuid())
+  orgId       String
+  taskId      String?
+  name        String
+  mimeType    String
+  sizeBytes   Int
+  objectKey   String   // S3 key
+  sha256      String
+  scanState   String   @default("pending") // pending | clean | infected | skipped
+  extractedText String?
+  createdAt   DateTime @default(now())
+
+  org      Organization  @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  task     Task?         @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  versions FileVersion[]
+
+  @@index([orgId])
+  @@index([taskId])
+}
+
+model FileVersion {
+  id         String   @id @default(cuid())
+  fileId     String
+  version    Int
+  objectKey  String
+  sizeBytes  Int
+  sha256     String
+  createdAt  DateTime @default(now())
+
+  file FileObject @relation(fields: [fileId], references: [id], onDelete: Cascade)
+
+  @@unique([fileId, version])
+}
+
+// ─────────────────────────── Findings & evidence ───────────────────────────
+
+enum FindingState {
+  POTENTIAL
+  DETECTED
+  REPRODUCED
+  CONFIRMED
+  FALSE_POSITIVE
+  INCONCLUSIVE
+}
+
+enum Severity {
+  INFO
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model Finding {
+  id          String       @id @default(cuid())
+  taskId      String
+  title       String
+  description String?
+  state       FindingState @default(POTENTIAL)
+  severity    Severity     @default(INFO)
+  cvssVector  String?
+  cvssScore   Float?
+  cwe         String?
+  cve         String?
+  owasp       String?
+  // Remediation guidance
+  remediation String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  task     Task       @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  evidence Evidence[]
+
+  @@index([taskId])
+  @@index([state])
+}
+
+// Hash-chained, timestamped evidence. `prevHash` + `hash` form a tamper-evident
+// chain per task so reports can prove integrity of their supporting evidence.
+model Evidence {
+  id         String   @id @default(cuid())
+  taskId     String
+  findingId  String?
+  toolRunId  String?
+  kind       String   // command_output | screenshot | http_response | file | note
+  objectKey  String?  // S3 key for binary artifacts
+  summary    String?
+  // Integrity chain
+  contentHash String  // sha256 of the artifact/content
+  prevHash    String?
+  hash        String  // sha256(contentHash + prevHash + createdAt + taskId)
+  createdAt   DateTime @default(now())
+
+  finding Finding?       @relation(fields: [findingId], references: [id], onDelete: SetNull)
+  toolRun ToolExecution? @relation(fields: [toolRunId], references: [id], onDelete: SetNull)
+
+  @@index([taskId])
+  @@index([findingId])
+}
+
+// ─────────────────────────── Reports ───────────────────────────────────────
+
+model Report {
+  id        String   @id @default(cuid())
+  orgId     String
+  taskId    String
+  title     String
+  format    String   // pdf | html | json | csv
+  objectKey String?  // generated artifact in S3
+  status    String   @default("pending") // pending | generating | ready | failed
+  content   Json?    // structured report model
+  createdAt DateTime @default(now())
+
+  org  Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  task Task         @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@index([taskId])
+}
+
+// ─────────────────────────── Audit & notifications ─────────────────────────
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  orgId     String?
+  actorId   String?
+  action    String   // e.g. auth.login, mission.create, scope.block, admin.suspend
+  target    String?
+  metadata  Json?
+  ip        String?
+  createdAt DateTime @default(now())
+
+  org   Organization? @relation(fields: [orgId], references: [id], onDelete: SetNull)
+  actor User?         @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([orgId])
+  @@index([action])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  kind      String   // security | activity | billing | system
+  title     String
+  body      String?
+  readAt    DateTime?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}

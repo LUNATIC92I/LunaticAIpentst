@@ -1,0 +1,36 @@
+# deps
+node_modules/
+.pnpm-store/
+
+# builds
+dist/
+build/
+.next/
+out/
+*.tsbuildinfo
+
+# env & secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# prisma
+packages/database/prisma/*.db
+
+# logs & coverage
+*.log
+logs/
+coverage/
+.nyc_output/
+
+# os / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# runtime / evidence (never commit real evidence artifacts)
+evidence-store/
+sandbox-data/
