@@ -110,9 +110,17 @@ Status legend: ✅ done · 🚧 in progress · ⬜ not started.
 - [ ] More adapters (nikto, testssl, whatweb, bandit, ZAP) — same pattern; and
       live end-to-end runs need the sandbox tool image (Docker/E2B)
 
-## Phase 10 — Evidence & reporting ⬜
-- [ ] Hash-chained evidence store
-- [ ] Report engine (PDF/HTML/JSON/CSV) with CVSS/CWE/CVE/OWASP
+## Phase 10 — Evidence & reporting ✅
+- [x] Hash-chained, tamper-evident evidence store + verification (Phase 6/8)
+- [x] CVSS v3.1 base-score calculator (pure, unit-tested; Log4Shell=10.0)
+- [x] Finding lifecycle: triage state + confirmation policy (no CONFIRMED without
+      evidence) + CVSS scoring that sets severity
+- [x] Report engine: structured model (cover, authorization, exec summary,
+      methodology, findings w/ CVSS/CWE/CVE/OWASP + remediation + evidence refs,
+      integrity, conclusion) → PDF/HTML/JSON/CSV. PDF via headless Chromium.
+- [x] Every conclusion traceable to a hash-verified evidence record
+- [x] Reports UI (generate + download) and in-panel finding triage.
+      Verified LIVE: all 4 formats generate; PDF is a real %PDF; 44 API tests pass.
 
 ## Phase 11 — Billing & admin ⬜
 - [ ] Plans, Stripe, invoices, credits, usage dashboard

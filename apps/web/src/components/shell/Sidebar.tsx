@@ -13,12 +13,14 @@ import {
 } from 'lucide-react';
 import { Logo } from '@/components/Logo';
 
-const NAV = [
+import type { LucideIcon } from 'lucide-react';
+
+const NAV: { href: string; label: string; icon: LucideIcon; soon?: boolean }[] = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/missions', label: 'Missions', icon: Crosshair },
   { href: '/terminal', label: 'Terminal', icon: Terminal },
   { href: '/browser', label: 'Browser', icon: Globe },
-  { href: '/reports', label: 'Reports', icon: FileText, soon: true },
+  { href: '/reports', label: 'Reports', icon: FileText },
   { href: '/settings', label: 'Settings', icon: Settings },
 ];
 

@@ -12,7 +12,7 @@ import {
   Bug,
   Lock,
 } from 'lucide-react';
-import { agent, tools, type Execution, type PlanStep, type Finding, type Mission, type ToolCatalogItem } from '@/lib/api';
+import { agent, tools, findingsApi, type Execution, type PlanStep, type Finding, type Mission, type ToolCatalogItem } from '@/lib/api';
 
 const ACTION_ICON = { scope_verify: ShieldCheck, dns_recon: Globe, tool: Wrench } as const;
 const STATUS_COLOR: Record<string, string> = {
@@ -187,6 +187,7 @@ export function AgentPanel({ mission }: { mission: Mission }) {
                     {f.owasp && <span className="rounded bg-electric/15 px-1.5 py-0.5 font-mono text-electric">{f.owasp}</span>}
                     <span className="text-text-dim">{f.evidence.length} evidence record(s)</span>
                   </div>
+                  <TriageControls missionId={id} finding={f} onSaved={refresh} />
                 </li>
               ))}
             </ul>
@@ -206,6 +207,59 @@ export function AgentPanel({ mission }: { mission: Mission }) {
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+const STATES = ['POTENTIAL', 'DETECTED', 'REPRODUCED', 'CONFIRMED', 'FALSE_POSITIVE', 'INCONCLUSIVE'];
+
+function TriageControls({ missionId, finding, onSaved }: { missionId: string; finding: Finding; onSaved: () => void }) {
+  const [open, setOpen] = useState(false);
+  const [state, setState] = useState(finding.state);
+  const [cvss, setCvss] = useState(finding.cvssVector ?? '');
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  async function save() {
+    setBusy(true);
+    setErr(null);
+    try {
+      const payload: Record<string, unknown> = { state };
+      if (cvss.trim()) payload.cvssVector = cvss.trim();
+      await findingsApi.update(missionId, finding.id, payload);
+      setOpen(false);
+      onSaved();
+    } catch (e) {
+      setErr((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (!open) {
+    return (
+      <button className="mt-1.5 text-[11px] text-electric hover:underline" onClick={() => setOpen(true)}>
+        Triage…
+      </button>
+    );
+  }
+  return (
+    <div className="mt-2 space-y-2 rounded-lg border border-border bg-bg p-2">
+      <div className="flex flex-wrap items-center gap-2">
+        <select className="input h-8 w-40 py-1 text-xs" value={state} onChange={(e) => setState(e.target.value)}>
+          {STATES.map((s) => <option key={s} value={s}>{s}</option>)}
+        </select>
+        <input
+          className="input h-8 flex-1 py-1 font-mono text-[11px]"
+          placeholder="CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N"
+          value={cvss}
+          onChange={(e) => setCvss(e.target.value)}
+        />
+        <button className="btn-primary px-2.5 py-1 text-xs" disabled={busy} onClick={save}>Save</button>
+        <button className="btn-ghost px-2.5 py-1 text-xs" onClick={() => setOpen(false)}>Cancel</button>
+      </div>
+      {err && <p className="text-[11px] text-danger">{err}</p>}
+      <p className="text-[11px] text-text-dim">CONFIRMED requires at least one evidence record.</p>
     </div>
   );
 }

@@ -271,6 +271,8 @@ export interface Finding {
   cwe?: string | null;
   cve?: string | null;
   owasp?: string | null;
+  cvssScore?: number | null;
+  cvssVector?: string | null;
   evidence: { id: string; kind: string; summary: string | null; hash: string }[];
 }
 export interface ToolCatalogItem {
@@ -282,6 +284,44 @@ export interface ToolCatalogItem {
 }
 export const tools = {
   catalog: () => api<ToolCatalogItem[]>('/tools/catalog'),
+};
+
+// ─── Reports & findings triage ───
+export interface ReportRecord {
+  id: string;
+  title: string;
+  format: string;
+  status: string;
+  createdAt: string;
+}
+export const reports = {
+  generate: (missionId: string, format: 'pdf' | 'html' | 'json' | 'csv') =>
+    api<{ id: string; format: string; status: string; bytes: number; findings: number }>(
+      `/missions/${missionId}/reports`,
+      { method: 'POST', body: JSON.stringify({ format }) },
+    ),
+  list: (missionId: string) => api<ReportRecord[]>(`/missions/${missionId}/reports`),
+  /** Fetch a report with auth and trigger a browser download. */
+  async download(reportId: string, filename: string) {
+    const res = await fetch(`${API_URL}/reports/${reportId}/download`, {
+      headers: tokenStore.access ? { authorization: `Bearer ${tokenStore.access}` } : {},
+    });
+    if (!res.ok) throw new ApiError(res.status, 'Download failed');
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  },
+};
+
+export const findingsApi = {
+  update: (missionId: string, findingId: string, payload: Record<string, unknown>) =>
+    api<Finding>(`/missions/${missionId}/findings/${findingId}`, { method: 'PATCH', body: JSON.stringify(payload) }),
 };
 
 // ─── Sandbox ───
