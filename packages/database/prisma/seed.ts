@@ -7,11 +7,16 @@ import { randomBytes, scryptSync } from 'node:crypto';
 
 const prisma = new PrismaClient();
 
-// Minimal local password hash for the seed (the API uses argon2 in production).
+// Produces the SAME scrypt format the API verifies (@lunatic/security):
+// scrypt$N$r$p$saltB64$hashB64
 function hash(password: string): string {
-  const salt = randomBytes(16).toString('hex');
-  const derived = scryptSync(password, salt, 64).toString('hex');
-  return `scrypt$${salt}$${derived}`;
+  const N = 1 << 16;
+  const r = 8;
+  const p = 1;
+  const keyLen = 64;
+  const salt = randomBytes(16);
+  const derived = scryptSync(password, salt, keyLen, { N, r, p, maxmem: 256 * N * r });
+  return `scrypt$${N}$${r}$${p}$${salt.toString('base64')}$${derived.toString('base64')}`;
 }
 
 const PERMISSIONS = [

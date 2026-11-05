@@ -12,7 +12,8 @@
     "db:studio": "prisma studio",
     "build": "tsc -p tsconfig.json",
     "lint": "echo \"(lint) @lunatic/database\"",
-    "test": "echo \"(no tests) @lunatic/database\""
+    "test": "echo \"(no tests) @lunatic/database\"",
+    "db:seed:demo": "tsx prisma/demo.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

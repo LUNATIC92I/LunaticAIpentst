@@ -133,13 +133,25 @@ Status legend: ✅ done · 🚧 in progress · ⬜ not started.
       admin:users. Verified LIVE end-to-end. 49 API unit tests pass.
 - [ ] Platform-level superadmin (cross-org) + configurable prices in admin UI
 
-## Phase 12 — Tests, optimization & deployment ⬜
-- [ ] Unit/integration/API/security/sandbox/load tests
-- [ ] Demo data + safe demo environment
-- [ ] Deployment guides, hardening, observability
+## Phase 12 — Tests, optimization & deployment ✅
+- [x] 99 unit tests across scope-engine (28), security (12), ai (10), api (49):
+      authorization/SSRF, crypto/MFA, provider mappers, agent gating, evidence
+      chain, sandbox hardening, browser filter, tool parsers, CVSS, renderers,
+      plans. `pnpm -r test` green.
+- [x] CI workflow (build/lint/test + migration verification against Postgres)
+- [x] Safe demo environment: `db:seed` (roles + demo org/user) and
+      `db:seed:demo` (sample missions + valid hash-chained evidence). Seed
+      password format aligned with the API verifier.
+- [x] docker-compose (postgres/redis/api/web) + Dockerfiles; config validated
+- [x] Docs: README, INSTALLATION, DEPLOYMENT, USER_GUIDE, DEVELOPMENT, ARCHITECTURE
+- [ ] Integration/load tests + production observability wiring (environment-specific)
 
 ---
 
 ### Current status
-Phase 1 foundation is implemented in this iteration: monorepo, schema, scope
-engine (with tests), and infra scaffolding. Subsequent phases build on it.
+All 12 phases have an implemented, tested baseline. The platform runs end-to-end
+in development; capabilities needing external infrastructure (AI provider keys,
+a Docker/E2B sandbox backend, Stripe, S3) are implemented with adapters and
+surface an explicit NOT_CONFIGURED / AWAITING_SANDBOX state rather than faking
+output. 99 unit tests pass. See the README "honest status" table for what is
+verified live vs. what activates with external credentials/infra.

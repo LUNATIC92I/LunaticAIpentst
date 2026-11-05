@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-test:
+    name: Build & test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install
+        run: pnpm install --frozen-lockfile=false
+      - name: Generate Prisma client
+        run: pnpm --filter @lunatic/database db:generate
+      - name: Build
+        run: pnpm -r build
+      - name: Lint
+        run: pnpm -r lint
+      - name: Test
+        run: pnpm -r test
+
+  migrations:
+    name: Verify migrations
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: lunatic
+          POSTGRES_PASSWORD: lunatic
+          POSTGRES_DB: lunatic
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U lunatic"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://lunatic:lunatic@localhost:5432/lunatic?schema=public
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile=false
+      - name: Apply migrations
+        run: pnpm --filter @lunatic/database db:deploy
+      - name: Seed (system roles + demo org)
+        run: pnpm --filter @lunatic/database db:seed
