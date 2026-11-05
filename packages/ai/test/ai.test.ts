@@ -55,7 +55,7 @@ describe('Anthropic mapping', () => {
 });
 
 describe('Gemini mapping', () => {
-  it('maps assistant→model and wraps parts', () => {
+  it('maps assistant->model and wraps parts', () => {
     const body = buildGeminiBody(req) as any;
     expect(body.systemInstruction.parts[0].text).toContain('security');
     expect(body.contents[1].role).toBe('model');

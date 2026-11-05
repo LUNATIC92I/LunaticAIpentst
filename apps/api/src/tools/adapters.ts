@@ -6,9 +6,9 @@ import {
   type ToolAdapter,
 } from './types';
 
-// ─────────────────────────── Recon / network ───────────────────────────────
+// --------------------------- Recon / network -------------------------------
 
-/** nmap — service/version scan; parses the XML port table. */
+/** nmap - service/version scan; parses the XML port table. */
 export const nmapAdapter: ToolAdapter = {
   name: 'nmap',
   category: 'network',
@@ -34,7 +34,7 @@ export const nmapAdapter: ToolAdapter = {
   },
 };
 
-/** subfinder — passive subdomain enumeration; one host per line. */
+/** subfinder - passive subdomain enumeration; one host per line. */
 export const subfinderAdapter: ToolAdapter = {
   name: 'subfinder',
   category: 'recon',
@@ -53,9 +53,9 @@ export const subfinderAdapter: ToolAdapter = {
   },
 };
 
-// ─────────────────────────── Web ───────────────────────────────────────────
+// --------------------------- Web -------------------------------------------
 
-/** httpx — probe + fingerprint; JSONL output. */
+/** httpx - probe + fingerprint; JSONL output. */
 export const httpxAdapter: ToolAdapter = {
   name: 'httpx',
   category: 'web',
@@ -70,7 +70,7 @@ export const httpxAdapter: ToolAdapter = {
       const status = row.status_code ?? row.status;
       const tech = Array.isArray(row.tech) ? (row.tech as string[]).join(', ') : undefined;
       findings.push({
-        title: `${url} → ${status}${row.title ? ` · ${row.title}` : ''}`,
+        title: `${url} -> ${status}${row.title ? ` - ${row.title}` : ''}`,
         description: tech ? `Technologies: ${tech}` : undefined,
         severity: 'INFO',
         state: 'DETECTED',
@@ -80,7 +80,7 @@ export const httpxAdapter: ToolAdapter = {
   },
 };
 
-/** nuclei — template-based vulnerability scanner; JSONL output. */
+/** nuclei - template-based vulnerability scanner; JSONL output. */
 export const nucleiAdapter: ToolAdapter = {
   name: 'nuclei',
   category: 'web',
@@ -98,7 +98,7 @@ export const nucleiAdapter: ToolAdapter = {
       const cwe = Array.isArray(classification['cwe-id']) ? classification['cwe-id'][0] : classification['cwe-id'];
       findings.push({
         title: info.name ?? row['template-id'] ?? 'nuclei match',
-        description: `${row['matched-at'] ?? row.host ?? ''}${info.description ? ` — ${info.description}` : ''}`.trim() || undefined,
+        description: `${row['matched-at'] ?? row.host ?? ''}${info.description ? ` - ${info.description}` : ''}`.trim() || undefined,
         severity: sev,
         // Tool detection, not yet reproduced by a human/agent.
         state: 'DETECTED',
@@ -111,9 +111,9 @@ export const nucleiAdapter: ToolAdapter = {
   },
 };
 
-// ─────────────────────────── Code / secrets ────────────────────────────────
+// --------------------------- Code / secrets --------------------------------
 
-/** semgrep — static analysis; JSON output with results[]. */
+/** semgrep - static analysis; JSON output with results[]. */
 export const semgrepAdapter: ToolAdapter = {
   name: 'semgrep',
   category: 'code',
@@ -144,7 +144,7 @@ export const semgrepAdapter: ToolAdapter = {
   },
 };
 
-/** gitleaks — secret scanning; JSON array report. */
+/** gitleaks - secret scanning; JSON array report. */
 export const gitleaksAdapter: ToolAdapter = {
   name: 'gitleaks',
   category: 'code',
@@ -172,7 +172,7 @@ export const gitleaksAdapter: ToolAdapter = {
   },
 };
 
-/** trivy — filesystem/dependency vulnerability scan; JSON output. */
+/** trivy - filesystem/dependency vulnerability scan; JSON output. */
 export const trivyAdapter: ToolAdapter = {
   name: 'trivy',
   category: 'code',

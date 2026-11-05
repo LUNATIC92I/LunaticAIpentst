@@ -52,7 +52,7 @@ export default function BrowserPage() {
 
       <div className="flex flex-wrap items-center gap-2">
         <select className="input max-w-xs" value={missionId} onChange={(e) => setMissionId(e.target.value)}>
-          <option value="">Select a mission…</option>
+          <option value="">Select a mission...</option>
           {missionList.map((m) => (
             <option key={m.id} value={m.id}>{m.name}</option>
           ))}
@@ -74,7 +74,7 @@ export default function BrowserPage() {
           disabled={!missionId}
         />
         <button className="btn-primary" type="submit" disabled={busy || !missionId}>
-          {busy ? 'Loading…' : <>Go <ArrowRight size={15} /></>}
+          {busy ? 'Loading...' : <>Go <ArrowRight size={15} /></>}
         </button>
       </form>
 
@@ -116,7 +116,7 @@ export default function BrowserPage() {
               <div className="card p-4">
                 <h3 className="mb-2 text-sm font-medium text-text">Redirect chain</h3>
                 <ol className="space-y-1 font-mono text-[11px] text-text-muted">
-                  {result.redirectChain.map((u) => <li key={u}>↳ {u}</li>)}
+                  {result.redirectChain.map((u) => <li key={u}>&gt; {u}</li>)}
                 </ol>
               </div>
             )}

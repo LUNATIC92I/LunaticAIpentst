@@ -1,7 +1,7 @@
 /**
  * Safe demo data for the local demo environment. Populates the demo org with
  * sample missions, findings and a valid hash-chained evidence trail. Targets are
- * documentation-only (example.com and RFC 5737 / TEST-NET ranges) — never real
+ * documentation-only (example.com and RFC 5737 / TEST-NET ranges) - never real
  * third-party systems. Idempotent: skips if demo missions already exist.
  */
 import { PrismaClient } from '@prisma/client';
@@ -34,7 +34,7 @@ async function main() {
 
   const existing = await prisma.task.count({ where: { orgId: org.id, name: { startsWith: '[Demo]' } } });
   if (existing > 0) {
-    console.log('Demo data already present — skipping.');
+    console.log('Demo data already present - skipping.');
     return;
   }
 
@@ -88,7 +88,7 @@ async function main() {
   await prisma.task.create({
     data: {
       orgId: org.id, ownerId: user.id, name: '[Demo] API authentication hardening',
-      description: 'Advisory engagement — configuration review.',
+      description: 'Advisory engagement - configuration review.',
       status: 'DRAFT', mode: 'CHAT', permissionMode: 'APPROVAL', agentProfile: 'STANDARD',
     },
   });

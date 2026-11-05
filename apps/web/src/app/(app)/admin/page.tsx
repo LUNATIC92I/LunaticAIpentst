@@ -109,7 +109,7 @@ export default function AdminPage() {
         <ul className="max-h-80 space-y-1 overflow-auto">
           {audit.map((a) => (
             <li key={a.id} className="flex items-center justify-between border-b border-border/60 py-1.5 text-sm">
-              <span className="font-mono text-xs text-text-muted">{a.action}{a.target ? ` · ${a.target.slice(0, 10)}…` : ''}</span>
+              <span className="font-mono text-xs text-text-muted">{a.action}{a.target ? ` - ${a.target.slice(0, 10)}...` : ''}</span>
               <span className="text-xs text-text-dim">{new Date(a.createdAt).toLocaleString()}</span>
             </li>
           ))}

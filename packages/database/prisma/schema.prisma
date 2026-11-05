@@ -1,6 +1,6 @@
-// LUNATIC PENTEST AI — data model.
+// LUNATIC PENTEST AI - data model.
 // Multi-tenant: nearly everything hangs off an Organization for isolation.
-// See ARCHITECTURE.md §3.3 and the per-table comments below.
+// See ARCHITECTURE.md section 3.3 and the per-table comments below.
 
 generator client {
   provider = "prisma-client-js"
@@ -11,7 +11,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ─────────────────────────── Identity & tenancy ────────────────────────────
+// --------------------------- Identity & tenancy ----------------------------
 
 model User {
   id                String   @id @default(cuid())
@@ -136,7 +136,7 @@ model LoginEvent {
   @@index([email])
 }
 
-// ─────────────────────────── Billing & usage ───────────────────────────────
+// --------------------------- Billing & usage -------------------------------
 
 enum PlanTier {
   FREE
@@ -211,7 +211,7 @@ model UsageRecord {
   @@index([orgId, kind])
 }
 
-// ─────────────────────────── AI providers & keys ───────────────────────────
+// --------------------------- AI providers & keys ---------------------------
 
 enum ProviderKind {
   ANTHROPIC
@@ -282,7 +282,7 @@ model ApiKey {
   @@index([providerId])
 }
 
-// ─────────────────────────── Missions (Tasks) ──────────────────────────────
+// --------------------------- Missions (Tasks) ------------------------------
 
 enum TaskStatus {
   DRAFT
@@ -421,7 +421,7 @@ model TaskExecution {
   @@index([taskId])
 }
 
-// ─────────────────────────── Tools & outputs ───────────────────────────────
+// --------------------------- Tools & outputs -------------------------------
 
 model ToolExecution {
   id            String          @id @default(cuid())
@@ -462,7 +462,7 @@ model ToolOutput {
   @@index([toolRunId])
 }
 
-// ─────────────────────────── Sandboxes ─────────────────────────────────────
+// --------------------------- Sandboxes -------------------------------------
 
 enum SandboxStatus {
   CREATING
@@ -507,7 +507,7 @@ model SandboxEvent {
   @@index([sandboxId])
 }
 
-// ─────────────────────────── Files ─────────────────────────────────────────
+// --------------------------- Files -----------------------------------------
 
 model FileObject {
   id          String   @id @default(cuid())
@@ -544,7 +544,7 @@ model FileVersion {
   @@unique([fileId, version])
 }
 
-// ─────────────────────────── Findings & evidence ───────────────────────────
+// --------------------------- Findings & evidence ---------------------------
 
 enum FindingState {
   POTENTIAL
@@ -610,7 +610,7 @@ model Evidence {
   @@index([findingId])
 }
 
-// ─────────────────────────── Reports ───────────────────────────────────────
+// --------------------------- Reports ---------------------------------------
 
 model Report {
   id        String   @id @default(cuid())
@@ -629,7 +629,7 @@ model Report {
   @@index([taskId])
 }
 
-// ─────────────────────────── Audit & notifications ─────────────────────────
+// --------------------------- Audit & notifications -------------------------
 
 model AuditLog {
   id        String   @id @default(cuid())

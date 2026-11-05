@@ -172,7 +172,7 @@ export class AuthService {
     return { ok: true };
   }
 
-  // ─── MFA enrollment ───
+  // --- MFA enrollment ---
   private encryptMfa(secret: string) {
     return sealSecret(secret, this.config.getOrThrow<string>('SECRETS_ENCRYPTION_KEY'));
   }

@@ -24,7 +24,7 @@ export class ReportsController {
     return user.orgId;
   }
 
-  // ─── Findings ───
+  // --- Findings ---
   @Get('missions/:id/findings')
   @Permissions('mission:read')
   listFindings(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
@@ -42,7 +42,7 @@ export class ReportsController {
     return this.findings.update(this.orgOf(user), id, findingId, dto, user.userId);
   }
 
-  // ─── Reports ───
+  // --- Reports ---
   @Post('missions/:id/reports')
   @Permissions('report:generate')
   generate(

@@ -1,5 +1,5 @@
 /**
- * Agent planning — pure and deterministic so it can be unit-tested.
+ * Agent planning - pure and deterministic so it can be unit-tested.
  *
  * The planner decomposes a mission into ordered steps. Each step names a single
  * action against a single authorized target. Execution is still gated at run

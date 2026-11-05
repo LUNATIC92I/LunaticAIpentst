@@ -85,7 +85,7 @@ export function AgentPanel({ mission }: { mission: Mission }) {
           <Play size={14} /> Run
         </button>
         <span className="ml-auto text-xs text-text-dim">
-          Mode: <span className="text-text-muted">{mission.permissionMode}</span> · Profile: <span className="text-text-muted">{mission.agentProfile}</span>
+          Mode: <span className="text-text-muted">{mission.permissionMode}</span> - Profile: <span className="text-text-muted">{mission.agentProfile}</span>
         </span>
       </div>
       {error && <p className="text-sm text-danger">{error}</p>}
@@ -133,7 +133,7 @@ export function AgentPanel({ mission }: { mission: Mission }) {
                       {e?.scopeDecision && (
                         <p className="mt-1 font-mono text-[11px] text-text-dim">
                           scope: {e.scopeDecision.code}
-                          {e.scopeDecision.resolvedIps?.length ? ` · ${e.scopeDecision.resolvedIps.join(', ')}` : ''}
+                          {e.scopeDecision.resolvedIps?.length ? ` - ${e.scopeDecision.resolvedIps.join(', ')}` : ''}
                         </p>
                       )}
                       {e?.summary && e.status !== 'PENDING' && (
@@ -142,7 +142,7 @@ export function AgentPanel({ mission }: { mission: Mission }) {
                     </div>
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
-                    <span className={`text-xs ${STATUS_COLOR[e?.status ?? 'PENDING']}`}>{e?.status ?? '—'}</span>
+                    <span className={`text-xs ${STATUS_COLOR[e?.status ?? 'PENDING']}`}>{e?.status ?? '-'}</span>
                     {e?.status === 'PENDING' && (
                       <>
                         <button className="rounded border border-success/40 p-1 text-success hover:bg-success/10" onClick={() => wrap(() => agent.approve(id, e.id, true))} aria-label="Approve">
@@ -201,7 +201,7 @@ export function AgentPanel({ mission }: { mission: Mission }) {
             <p className="text-xs text-text-dim">No evidence yet.</p>
           ) : (
             <div className={`rounded-lg border p-3 text-sm ${integrity.valid ? 'border-success/30 bg-success/10 text-success' : 'border-danger/30 bg-danger/10 text-danger'}`}>
-              {integrity.valid ? '✓ Chain intact' : '✗ Chain broken'} · {integrity.count} record(s)
+              {integrity.valid ? 'OK Chain intact' : 'X Chain broken'} - {integrity.count} record(s)
               <p className="mt-1 text-xs text-text-muted">Hash-chained, tamper-evident per mission.</p>
             </div>
           )}
@@ -239,7 +239,7 @@ function TriageControls({ missionId, finding, onSaved }: { missionId: string; fi
   if (!open) {
     return (
       <button className="mt-1.5 text-[11px] text-electric hover:underline" onClick={() => setOpen(true)}>
-        Triage…
+        Triage...
       </button>
     );
   }

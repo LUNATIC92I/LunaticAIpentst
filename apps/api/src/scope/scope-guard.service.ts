@@ -22,7 +22,7 @@ export interface ScopeCheckInput {
  * The server-side authorization choke point. Resolves DNS for hostnames (so the
  * pure scope engine can enforce DNS-rebind / SSRF protection), then evaluates
  * the target against the mission's authorized scope. The agent and tool runners
- * MUST call this before any active operation — it cannot be bypassed by a
+ * MUST call this before any active operation - it cannot be bypassed by a
  * conversational instruction, imported file or tool output.
  */
 @Injectable()

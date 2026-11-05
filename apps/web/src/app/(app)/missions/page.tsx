@@ -136,7 +136,7 @@ function CreateModal({ onClose, onCreated }: { onClose: () => void; onCreated: (
           <div className="flex justify-end gap-2">
             <button type="button" className="btn-ghost" onClick={onClose}>Cancel</button>
             <button type="submit" className="btn-primary" disabled={busy || !form.name}>
-              {busy ? 'Creating…' : 'Create mission'}
+              {busy ? 'Creating...' : 'Create mission'}
             </button>
           </div>
         </form>

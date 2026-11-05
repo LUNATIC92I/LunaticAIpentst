@@ -84,7 +84,7 @@ export function buildReportModel(input: BuildReportInput): ReportModel {
         : `No confirmed high-impact vulnerabilities were identified within the authorized scope during this engagement.`;
 
   return {
-    title: `Security Assessment — ${input.mission.name}`,
+    title: `Security Assessment - ${input.mission.name}`,
     generatedAt: now.toISOString(),
     mission: input.mission,
     organization: input.organization,
@@ -94,7 +94,7 @@ export function buildReportModel(input: BuildReportInput): ReportModel {
       'Authorization and scope verification (every target validated by the scope guard).',
       'Reconnaissance (DNS, service and technology identification).',
       'Automated analysis with scope-limited tooling executed in isolated sandboxes.',
-      'Triage and classification (potential → detected → reproduced → confirmed).',
+      'Triage and classification (potential -> detected -> reproduced -> confirmed).',
       'Evidence collection with a tamper-evident hash chain.',
     ],
     executiveSummary,

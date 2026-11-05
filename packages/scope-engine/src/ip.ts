@@ -36,7 +36,7 @@ export function parseIpv4(input: string): ParsedIp | null {
 export function parseIpv6(input: string): ParsedIp | null {
   let s = input.trim().toLowerCase();
   if (s.startsWith('[') && s.endsWith(']')) s = s.slice(1, -1);
-  // Embedded IPv4 (e.g. ::ffff:127.0.0.1) — convert the trailing dotted quad
+  // Embedded IPv4 (e.g. ::ffff:127.0.0.1) - convert the trailing dotted quad
   // into two hex groups before the main parse.
   if (s.includes('.')) {
     const lastColon = s.lastIndexOf(':');
@@ -128,7 +128,7 @@ const PRIVATE_V6 = ['::1/128', 'fc00::/7', 'fe80::/10', '::ffff:0:0/96', '::/128
 export function isPrivateOrReserved(ip: ParsedIp): boolean {
   const ranges = ip.kind === 'ipv4' ? PRIVATE_V4 : PRIVATE_V6;
   if (ranges.some((c) => cidrContains(c, ip))) return true;
-  // IPv4-mapped IPv6 (::ffff:a.b.c.d) — unwrap and check as v4.
+  // IPv4-mapped IPv6 (::ffff:a.b.c.d) - unwrap and check as v4.
   if (ip.kind === 'ipv6') {
     const mapped = ip.value & ((1n << 32n) - 1n);
     const high = ip.value >> 32n;

@@ -170,7 +170,7 @@ export class BrowserService {
         taskId: missionId,
         kind: 'http_response',
         toolRunId: toolRun.id,
-        summary: `GET ${url} → ${response?.status()}`,
+        summary: `GET ${url} -> ${response?.status()}`,
         content: JSON.stringify(meta),
       });
       await this.evidence.append({

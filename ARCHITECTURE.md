@@ -1,4 +1,4 @@
-# LUNATIC PENTEST AI — Architecture
+# LUNATIC PENTEST AI - Architecture
 
 > Plateforme professionnelle de pentesting assisté par agents intelligents, pour
 > opérations de sécurité **autorisées** uniquement.
@@ -28,33 +28,33 @@ platform. It is the authoritative reference for how the pieces fit together.
 ## 2. High-level topology
 
 ```
-                         ┌──────────────────────────────────────────┐
-                         │                Clients                    │
-                         │   Web (Next.js)   ·   Local Agent (CLI)    │
-                         └───────────────┬──────────────────────────┘
-                                         │ HTTPS / WSS (authenticated)
-                         ┌───────────────▼──────────────────────────┐
-                         │              Nginx / Cloudflare           │
-                         └───────────────┬──────────────────────────┘
-                                         │
-             ┌───────────────────────────▼───────────────────────────┐
-             │                   API (NestJS)                          │
-             │                                                         │
-             │  Auth · RBAC · Missions · Chat · Agent-Orchestrator ·   │
-             │  AI-Gateway · ScopeGuard · Sandboxes · Tools · Files ·  │
-             │  Findings · Evidence · Reports · Billing · Admin        │
-             └───┬───────────────┬──────────────┬──────────────┬──────┘
-                 │               │              │              │
-        ┌────────▼───┐   ┌───────▼─────┐  ┌─────▼──────┐  ┌────▼───────┐
-        │ PostgreSQL │   │    Redis    │  │  S3 store  │  │ Task queue │
-        │  (Prisma)  │   │ cache/pub   │  │ (evidence) │  │ (BullMQ)   │
-        └────────────┘   └─────────────┘  └────────────┘  └────┬───────┘
-                                                                │
-                                                 ┌──────────────▼───────────────┐
-                                                 │   Sandbox fleet (Docker/E2B)  │
-                                                 │  per-mission isolated runners │
-                                                 │  (Kali / Ubuntu tool images)  │
-                                                 └───────────────────────────────┘
+                         +------------------------------------------+
+                         |                Clients                    |
+                         |   Web (Next.js)   -   Local Agent (CLI)    |
+                         +---------------+--------------------------+
+                                         | HTTPS / WSS (authenticated)
+                         +---------------v--------------------------+
+                         |              Nginx / Cloudflare           |
+                         +---------------+--------------------------+
+                                         |
+             +---------------------------v---------------------------+
+             |                   API (NestJS)                          |
+             |                                                         |
+             |  Auth - RBAC - Missions - Chat - Agent-Orchestrator -   |
+             |  AI-Gateway - ScopeGuard - Sandboxes - Tools - Files -  |
+             |  Findings - Evidence - Reports - Billing - Admin        |
+             +---+---------------+--------------+--------------+------+
+                 |               |              |              |
+        +--------v---+   +-------v-----+  +-----v------+  +----v-------+
+        | PostgreSQL |   |    Redis    |  |  S3 store  |  | Task queue |
+        |  (Prisma)  |   | cache/pub   |  | (evidence) |  | (BullMQ)   |
+        +------------+   +-------------+  +------------+  +----+-------+
+                                                                |
+                                                 +--------------v---------------+
+                                                 |   Sandbox fleet (Docker/E2B)  |
+                                                 |  per-mission isolated runners |
+                                                 |  (Kali / Ubuntu tool images)  |
+                                                 +-------------------------------+
 ```
 
 ---
@@ -79,13 +79,13 @@ NestJS, modular. Each module owns its controllers, services, DTOs and tests.
 | `rbac` | Roles, permissions, org/tenant isolation guards |
 | `missions` | Mission CRUD, state machine, persistence |
 | `chat` | Conversational (CHAT mode) message handling |
-| `agent` | Agent orchestration (AGENT mode): plan → tool-select → execute → analyze |
+| `agent` | Agent orchestration (AGENT mode): plan -> tool-select -> execute -> analyze |
 | `ai` | Provider-agnostic AI gateway, key vault, token/cost accounting |
 | `scope-guard` | **Mandatory** authorization & target validation choke point |
 | `sandboxes` | Lifecycle of isolated execution environments |
 | `tools` | Adapters for recon/analysis tooling, run via sandboxes |
 | `files` | Upload, scan, versioning, extraction, mission association |
-| `findings` | Vulnerability lifecycle (potential→…→confirmed / false-positive) |
+| `findings` | Vulnerability lifecycle (potential->...->confirmed / false-positive) |
 | `evidence` | Hash-chained, timestamped evidence store |
 | `reports` | PDF/HTML/JSON/CSV report generation (CVSS/CWE/CVE/OWASP) |
 | `billing` | Plans, Stripe, invoices, credits, usage metering |
@@ -98,8 +98,8 @@ NestJS, modular. Each module owns its controllers, services, DTOs and tests.
 - Row-level tenant isolation enforced in the service layer + Postgres policies.
 
 ### 3.4 Shared packages
-- `packages/shared` — DTO/types/zod schemas shared by API and web.
-- `packages/scope-engine` — pure, dependency-light authorization engine
+- `packages/shared` - DTO/types/zod schemas shared by API and web.
+- `packages/scope-engine` - pure, dependency-light authorization engine
   (host/IP/CIDR allow-listing, DNS-rebind & SSRF protection, rate caps). It is
   pure so it can be unit-tested exhaustively and reused by the local agent.
 
@@ -119,10 +119,10 @@ NestJS, modular. Each module owns its controllers, services, DTOs and tests.
 ## 4. The Agent loop (AGENT mode)
 
 ```
-describe → identify target → VERIFY AUTHORIZATION (scope-guard, hard gate)
-        → plan (steps) → select tool → [permission check] → execute in sandbox
-        → collect output → analyze → classify finding → attach evidence
-        → update mission state → (loop) → generate report
+describe -> identify target -> VERIFY AUTHORIZATION (scope-guard, hard gate)
+        -> plan (steps) -> select tool -> [permission check] -> execute in sandbox
+        -> collect output -> analyze -> classify finding -> attach evidence
+        -> update mission state -> (loop) -> generate report
 ```
 
 - Mission state is persisted after every step so an interrupted run resumes
@@ -132,7 +132,7 @@ describe → identify target → VERIFY AUTHORIZATION (scope-guard, hard gate)
 
 ## 5. Finding lifecycle
 
-`POTENTIAL → DETECTED → REPRODUCED → CONFIRMED` · plus `FALSE_POSITIVE` and
+`POTENTIAL -> DETECTED -> REPRODUCED -> CONFIRMED` - plus `FALSE_POSITIVE` and
 `INCONCLUSIVE`. A finding may only reach `CONFIRMED` when linked evidence
 records satisfy the confirmation policy (reproducible output + artifact).
 

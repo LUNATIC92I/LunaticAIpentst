@@ -41,7 +41,7 @@ export function Sidebar() {
       <nav className="flex-1 space-y-1 px-3 py-2">
         {nav.map(({ href, label, icon: Icon, soon }) => {
           const active = pathname === href || pathname.startsWith(href + '/');
-          // "soon" items have no backend yet — render them non-navigable rather
+          // "soon" items have no backend yet - render them non-navigable rather
           // than link to an empty page.
           if (soon) {
             return (

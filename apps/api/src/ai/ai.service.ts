@@ -39,7 +39,7 @@ export class AiService {
     return this.config.getOrThrow<string>('SECRETS_ENCRYPTION_KEY');
   }
 
-  // ─── Provider / key / model management ───
+  // --- Provider / key / model management ---
   async addProvider(orgId: string, dto: AddProviderDto, actorId: string) {
     if (dto.kind !== 'MOCK' && !dto.apiKey) {
       throw new BadRequestException('An API key is required for this provider.');
@@ -88,7 +88,7 @@ export class AiService {
       include: { models: true, apiKeys: { where: { revokedAt: null }, select: { lastFour: true } } },
       orderBy: { createdAt: 'asc' },
     });
-    // Never leak key material — only lastFour.
+    // Never leak key material - only lastFour.
     return providers.map((p) => ({
       id: p.id,
       kind: p.kind,
@@ -136,7 +136,7 @@ export class AiService {
     return p;
   }
 
-  // ─── Resolution + gateway ───
+  // --- Resolution + gateway ---
   private async resolve(orgId: string) {
     const provider = await this.prisma.aiProvider.findFirst({
       where: { orgId, state: 'CONFIGURED' },

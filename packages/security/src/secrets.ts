@@ -45,7 +45,7 @@ export function openSecret(sealed: SealedSecret, masterKeyB64: string): string {
   return plaintext.toString('utf8');
 }
 
-/** Last 4 chars of a secret, for non-sensitive display (e.g. "…a1b2"). */
+/** Last 4 chars of a secret, for non-sensitive display (e.g. "...a1b2"). */
 export function lastFour(secret: string): string {
   return secret.slice(-4);
 }

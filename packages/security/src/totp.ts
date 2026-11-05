@@ -1,5 +1,5 @@
 /**
- * TOTP (RFC 6238) for MFA — dependency-free. Also RFC 4648 base32 and the
+ * TOTP (RFC 6238) for MFA - dependency-free. Also RFC 4648 base32 and the
  * otpauth:// URI used to provision authenticator apps.
  */
 import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';

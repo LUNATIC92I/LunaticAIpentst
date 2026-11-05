@@ -61,7 +61,7 @@ export default function LoginPage() {
           )}
           {error && <p className="rounded-lg border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger">{error}</p>}
           <button type="submit" className="btn-primary w-full" disabled={busy}>
-            {busy ? 'Signing in…' : 'Sign in'}
+            {busy ? 'Signing in...' : 'Sign in'}
           </button>
         </form>
         <p className="mt-6 text-center text-sm text-text-muted">

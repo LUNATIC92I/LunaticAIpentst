@@ -3,7 +3,7 @@ import { Injectable, Logger } from '@nestjs/common';
 
 /**
  * Minimal Stripe adapter over the REST API (dependency-free). When
- * STRIPE_SECRET_KEY is absent it reports NOT_CONFIGURED instead of failing — the
+ * STRIPE_SECRET_KEY is absent it reports NOT_CONFIGURED instead of failing - the
  * rest of billing still works (plans, usage, credits) without live payments.
  */
 @Injectable()
@@ -42,7 +42,7 @@ export class StripeService {
     return { status: 'OK' as const, url: session.url as string, id: session.id as string };
   }
 
-  /** Verify a Stripe webhook signature (t=…,v1=… scheme). */
+  /** Verify a Stripe webhook signature (t=...,v1=... scheme). */
   verifyWebhook(payload: string, sigHeader: string | undefined): boolean {
     const secret = process.env.STRIPE_WEBHOOK_SECRET;
     if (!secret || !sigHeader) return false;

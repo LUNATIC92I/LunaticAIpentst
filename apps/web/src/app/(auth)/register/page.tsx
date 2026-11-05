@@ -65,7 +65,7 @@ export default function RegisterPage() {
           </div>
           {error && <p className="rounded-lg border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger">{error}</p>}
           <button type="submit" className="btn-primary w-full" disabled={busy}>
-            {busy ? 'Creating…' : 'Create workspace'}
+            {busy ? 'Creating...' : 'Create workspace'}
           </button>
         </form>
         <p className="mt-6 text-center text-sm text-text-muted">

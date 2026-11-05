@@ -92,7 +92,7 @@ export class MissionsController {
     return this.missions.setEmergencyStop(this.orgOf(user), id, false, user.userId);
   }
 
-  // ─── Scope ───
+  // --- Scope ---
   @Post(':id/scope')
   @Permissions('mission:update')
   addScope(
@@ -123,7 +123,7 @@ export class MissionsController {
     return this.missions.scopeCheck(this.orgOf(user), id, dto, user.userId);
   }
 
-  // ─── Chat ───
+  // --- Chat ---
   @Get(':id/messages')
   @Permissions('mission:read')
   messages(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {

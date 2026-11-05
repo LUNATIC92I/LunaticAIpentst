@@ -6,7 +6,7 @@ import {
   effectiveWallclock,
 } from '../src/sandbox/container-options';
 
-describe('buildContainerOptions — hardening', () => {
+describe('buildContainerOptions - hardening', () => {
   const opts = buildContainerOptions({
     image: 'lunatic/kali-tools:latest',
     missionId: 'm1',

@@ -41,7 +41,7 @@ export class FindingsService {
 
     const data: Record<string, unknown> = {};
 
-    // Confirmation policy: a finding may only be CONFIRMED with ≥1 evidence record.
+    // Confirmation policy: a finding may only be CONFIRMED with >=1 evidence record.
     if (dto.state === 'CONFIRMED' && finding._count.evidence === 0) {
       throw new BadRequestException('A finding cannot be CONFIRMED without at least one evidence record.');
     }

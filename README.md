@@ -5,7 +5,7 @@ operations only**. Operators describe an engagement in natural language; an agen
 plans scope-gated steps, runs tooling inside isolated sandboxes, collects
 tamper-evident evidence, and produces traceable CVSS-scored reports.
 
-> ⚠️ For authorized testing of systems you own or have explicit written
+> Warning For authorized testing of systems you own or have explicit written
 > permission to assess. Every active action is enforced against a per-mission
 > authorized scope and cannot be widened by a prompt, a file, or tool output.
 
@@ -15,23 +15,23 @@ tamper-evident evidence, and produces traceable CVSS-scored reports.
 
 ## Highlights
 
-- **Authorization-first scope guard** — default-deny, SSRF / DNS-rebind
+- **Authorization-first scope guard** - default-deny, SSRF / DNS-rebind
   protection (blocks private/reserved ranges incl. cloud metadata), host/IP/CIDR
   allow-listing, emergency stop. The mandatory choke point for every active op.
-- **Autonomous agent** — plan → gate → scope-check → execute → analyze → evidence,
+- **Autonomous agent** - plan -> gate -> scope-check -> execute -> analyze -> evidence,
   with permission modes (APPROVAL / SUPERVISED / AUTONOMOUS) gating each step.
-- **Isolated execution** — hardened Docker sandboxes (no caps, read-only rootfs,
+- **Isolated execution** - hardened Docker sandboxes (no caps, read-only rootfs,
   no network by default, CPU/mem/PID/disk caps) + an `xterm.js` terminal over WS.
-- **Integrated recon browser** — headless Chromium with two-layer SSRF filtering,
+- **Integrated recon browser** - headless Chromium with two-layer SSRF filtering,
   header/redirect inspection and screenshots.
-- **Tool adapters** — nmap, subfinder, httpx, nuclei, semgrep, gitleaks, trivy,
+- **Tool adapters** - nmap, subfinder, httpx, nuclei, semgrep, gitleaks, trivy,
   each with a safe command builder + structured parser (severity + CWE/CVE/OWASP).
-- **Evidence & reporting** — hash-chained, tamper-evident evidence; CVSS v3.1
+- **Evidence & reporting** - hash-chained, tamper-evident evidence; CVSS v3.1
   scoring; professional PDF/HTML/JSON/CSV reports where every conclusion traces
   to a verified evidence record.
-- **AI gateway** — provider-agnostic (Anthropic/OpenAI/Gemini/DeepSeek/OpenRouter)
+- **AI gateway** - provider-agnostic (Anthropic/OpenAI/Gemini/DeepSeek/OpenRouter)
   with an encrypted key vault and token/cost accounting.
-- **SaaS** — plans/credits/usage, Stripe adapter, org admin (members, roles,
+- **SaaS** - plans/credits/usage, Stripe adapter, org admin (members, roles,
   audit), RBAC + multi-tenant isolation, MFA.
 
 See [`ARCHITECTURE.md`](./ARCHITECTURE.md) for the full design and
@@ -48,9 +48,9 @@ apps/
   local-agent/   (planned) installable host agent
 packages/
   database/      Prisma schema + migrations + seed
-  scope-engine/  pure authorization engine (SSRF/scope) — 28 tests
-  security/      scrypt / AES-256-GCM / TOTP — 12 tests
-  ai/            provider-agnostic AI gateway — 10 tests
+  scope-engine/  pure authorization engine (SSRF/scope) - 28 tests
+  security/      scrypt / AES-256-GCM / TOTP - 12 tests
+  ai/            provider-agnostic AI gateway - 10 tests
 ```
 
 ## Quickstart
@@ -66,8 +66,8 @@ pnpm --filter @lunatic/database db:migrate
 pnpm --filter @lunatic/database db:seed          # system roles + demo org/user
 pnpm --filter @lunatic/database db:seed:demo     # sample missions + evidence
 
-pnpm --filter @lunatic/api dev                   # API  → :4000/api
-pnpm --filter @lunatic/web dev                   # Web  → :3000
+pnpm --filter @lunatic/api dev                   # API  -> :4000/api
+pnpm --filter @lunatic/web dev                   # Web  -> :3000
 ```
 
 Demo login (local demo environment only): `demo@lunatic.local` /

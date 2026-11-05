@@ -3,7 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 
 /**
  * Computes dashboard statistics scoped to a single organization (tenant).
- * Every number is a real query against the database — nothing is synthesized.
+ * Every number is a real query against the database - nothing is synthesized.
  * When the platform has no activity yet, counts are genuinely zero.
  */
 @Injectable()

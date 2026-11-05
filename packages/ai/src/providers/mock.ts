@@ -17,9 +17,9 @@ export class MockProvider implements ChatProvider {
   async chat(req: ChatRequest): Promise<ChatResponse> {
     const lastUser = [...req.messages].reverse().find((m) => m.role === 'user');
     const content =
-      `[dev-echo model — not a real AI provider]\n\n` +
+      `[dev-echo model - not a real AI provider]\n\n` +
       `Received: "${(lastUser?.content ?? '').slice(0, 400)}"\n\n` +
-      `Configure a real provider key (Settings → AI providers) to get genuine ` +
+      `Configure a real provider key (Settings -> AI providers) to get genuine ` +
       `assistant analysis. This echo exists only to exercise the pipeline.`;
     const inputTokens = estimateTokens((req.system ?? '') + req.messages.map((m) => m.content).join(' '));
     return {

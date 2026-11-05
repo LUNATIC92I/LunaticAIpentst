@@ -89,7 +89,7 @@ export default function MissionDetailPage() {
         </div>
         {mission.emergencyStop && (
           <div className="mt-4 rounded-lg border border-danger/40 bg-danger/10 px-3 py-2 text-sm text-danger">
-            Emergency stop is active — every scope check is denied and no active operation can run.
+            Emergency stop is active - every scope check is denied and no active operation can run.
           </div>
         )}
       </div>

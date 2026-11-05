@@ -2,7 +2,7 @@
  * Tool adapter framework. Each adapter knows how to build a safe argv command
  * for a tool and how to parse its output into structured findings. Parsers are
  * pure so they can be unit-tested against recorded tool output without running
- * the tools. Commands are argv arrays (never shell strings) — no injection.
+ * the tools. Commands are argv arrays (never shell strings) - no injection.
  */
 export type ToolCategory = 'recon' | 'web' | 'network' | 'code';
 export type TargetKind = 'host' | 'url' | 'ip' | 'path' | 'any';

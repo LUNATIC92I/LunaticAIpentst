@@ -82,7 +82,7 @@ export function ScopePanel({ mission, onChange }: { mission: Mission; onChange: 
         </h3>
         <form onSubmit={runCheck} className="flex gap-2">
           <input className="input flex-1 font-mono text-sm" placeholder="example.com or 10.0.0.5" value={checkTarget} onChange={(e) => setCheckTarget(e.target.value)} />
-          <button className="btn-ghost" type="submit" disabled={busy}>{busy ? 'Checking…' : 'Check'}</button>
+          <button className="btn-ghost" type="submit" disabled={busy}>{busy ? 'Checking...' : 'Check'}</button>
         </form>
         {decision && (
           <div className={`mt-3 rounded-lg border p-3 text-sm ${decision.allowed ? 'border-success/30 bg-success/10' : 'border-danger/30 bg-danger/10'}`}>

@@ -124,7 +124,7 @@ export class AgentService {
     }
 
     const plan = await this.getPlan(orgId, missionId);
-    if (!plan) throw new BadRequestException('No plan — call plan first.');
+    if (!plan) throw new BadRequestException('No plan - call plan first.');
     const steps = plan.steps as unknown as PlanStep[];
 
     const execs = await this.prisma.taskExecution.findMany({
@@ -173,7 +173,7 @@ export class AgentService {
     const mission = await this.prisma.task.findUniqueOrThrow({ where: { id: missionId } });
     const entries = await this.scopeEntries(missionId);
 
-    // Authorization choke point — always runs before any action.
+    // Authorization choke point - always runs before any action.
     const decision = await this.scopeGuard.check({
       target: step.target,
       entries,
@@ -247,7 +247,7 @@ export class AgentService {
       return { outcome: 'SUCCEEDED', resolvedIps: ips };
     }
 
-    // action === 'tool' — run the tool inside the isolated sandbox when one is
+    // action === 'tool' - run the tool inside the isolated sandbox when one is
     // available. Rich argument construction + structured parsing land with the
     // tool adapters (Phase 9); here we run a real, basic invocation. If no
     // sandbox backend is reachable we record the intent honestly rather than
@@ -301,7 +301,7 @@ export class AgentService {
               title: f.title.slice(0, 250),
               description: f.description,
               severity: f.severity as never,
-              state: f.state as never, // DETECTED — tool-detected, not auto-confirmed
+              state: f.state as never, // DETECTED - tool-detected, not auto-confirmed
               cwe: f.cwe,
               cve: f.cve,
               owasp: f.owasp,
@@ -322,7 +322,7 @@ export class AgentService {
           where: { id: toolRun.id },
           data: { status: 'BLOCKED', finishedAt: new Date() },
         });
-        await this.finish(execId, 'BLOCKED', 'Tool execution requires a sandbox runner — backend not available.');
+        await this.finish(execId, 'BLOCKED', 'Tool execution requires a sandbox runner - backend not available.');
         return {
           outcome: 'AWAITING_SANDBOX',
           tool: step.tool,
@@ -346,7 +346,7 @@ export class AgentService {
     });
   }
 
-  // ─── Findings & evidence (read + integrity) ───
+  // --- Findings & evidence (read + integrity) ---
   async findings(orgId: string, missionId: string) {
     await this.mustOwn(orgId, missionId);
     return this.prisma.finding.findMany({

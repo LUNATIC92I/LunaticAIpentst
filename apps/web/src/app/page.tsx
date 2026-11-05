@@ -18,7 +18,7 @@ export default function Landing() {
     <div className="bg-grid flex min-h-screen items-center justify-center">
       <div className="flex flex-col items-center gap-3 animate-fade-in">
         <Logo size={40} />
-        <p className="text-sm text-text-muted">Loading workspace…</p>
+        <p className="text-sm text-text-muted">Loading workspace...</p>
       </div>
     </div>
   );

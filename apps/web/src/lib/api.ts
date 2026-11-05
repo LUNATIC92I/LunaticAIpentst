@@ -31,7 +31,7 @@ export const tokenStore = {
       localStorage.setItem(ACCESS_KEY, access);
       localStorage.setItem(REFRESH_KEY, refresh);
     } catch {
-      /* storage unavailable (private mode) — tokens live only in this tab */
+      /* storage unavailable (private mode) - tokens live only in this tab */
     }
   },
   clear() {
@@ -97,7 +97,7 @@ export async function api<T>(path: string, init: RequestInit = {}, withAuth = tr
   }
 }
 
-// ─── Typed endpoints ───
+// --- Typed endpoints ---
 export interface TokenPair {
   accessToken: string;
   refreshToken: string;
@@ -138,7 +138,7 @@ export const platform = {
   dashboard: () => api<DashboardStats>('/dashboard/stats'),
 };
 
-// ─── Missions / workspace ───
+// --- Missions / workspace ---
 export type MissionStatus =
   | 'DRAFT'
   | 'SCOPING'
@@ -185,7 +185,7 @@ export interface ScopeDecision {
   resolvedIps?: string[];
 }
 
-// ─── AI providers ───
+// --- AI providers ---
 export interface AiProvider {
   id: string;
   kind: string;
@@ -244,7 +244,7 @@ export const missions = {
     ),
 };
 
-// ─── Agent orchestration ───
+// --- Agent orchestration ---
 export interface PlanStep {
   index: number;
   title: string;
@@ -286,7 +286,7 @@ export const tools = {
   catalog: () => api<ToolCatalogItem[]>('/tools/catalog'),
 };
 
-// ─── Reports & findings triage ───
+// --- Reports & findings triage ---
 export interface ReportRecord {
   id: string;
   title: string;
@@ -324,7 +324,7 @@ export const findingsApi = {
     api<Finding>(`/missions/${missionId}/findings/${findingId}`, { method: 'PATCH', body: JSON.stringify(payload) }),
 };
 
-// ─── Billing ───
+// --- Billing ---
 export interface Plan {
   tier: string;
   name: string;
@@ -351,7 +351,7 @@ export const billing = {
     api<{ status: string; url?: string; message?: string }>('/billing/checkout', { method: 'POST', body: JSON.stringify({ tier }) }),
 };
 
-// ─── Admin ───
+// --- Admin ---
 export interface AdminUser {
   id: string;
   email: string;
@@ -381,7 +381,7 @@ export const admin = {
   setTier: (tier: string) => api('/admin/plan', { method: 'POST', body: JSON.stringify({ tier }) }),
 };
 
-// ─── Sandbox ───
+// --- Sandbox ---
 export interface SandboxStatus {
   driver: string;
   available: boolean;
@@ -409,7 +409,7 @@ export const sandboxes = {
 /** Base origin of the API (socket.io connects here, namespace /terminal). */
 export const API_ORIGIN = API_URL.replace(/\/api$/, '');
 
-// ─── Integrated browser ───
+// --- Integrated browser ---
 export interface BrowserResult {
   blocked?: boolean;
   decision?: { code: string; reason: string };

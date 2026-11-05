@@ -101,8 +101,8 @@ export default function TerminalPage() {
       {/* Sandbox status */}
       {status && (
         <div className="card grid gap-3 p-4 sm:grid-cols-4">
-          <Stat icon={Server} label="Driver" value={`${status.driver} · ${status.available ? 'available' : 'unavailable'}`} ok={status.available} />
-          <Stat icon={Cpu} label="CPU / Mem" value={`${status.caps.cpu} vCPU · ${status.caps.memoryMb} MB`} />
+          <Stat icon={Server} label="Driver" value={`${status.driver} - ${status.available ? 'available' : 'unavailable'}`} ok={status.available} />
+          <Stat icon={Cpu} label="CPU / Mem" value={`${status.caps.cpu} vCPU - ${status.caps.memoryMb} MB`} />
           <Stat icon={HardDrive} label="Disk" value={`${status.caps.diskMb} MB`} />
           <Stat icon={Clock} label="Wall-clock" value={`${status.wallclockLimit}s`} />
         </div>
@@ -125,7 +125,7 @@ export default function TerminalPage() {
       {/* Controls */}
       <div className="flex flex-wrap items-center gap-2">
         <select className="input max-w-xs" value={missionId} onChange={(e) => setMissionId(e.target.value)} disabled={connected}>
-          <option value="">Select a mission…</option>
+          <option value="">Select a mission...</option>
           {missionList.map((m) => (
             <option key={m.id} value={m.id}>{m.name}</option>
           ))}

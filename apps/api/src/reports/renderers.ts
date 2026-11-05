@@ -54,7 +54,7 @@ function findingHtml(f: ReportFinding, index: number): string {
     ${f.description ? `<p>${esc(f.description)}</p>` : ''}
     ${f.remediation ? `<div class="remediation"><strong>Remediation.</strong> ${esc(f.remediation)}</div>` : ''}
     <details class="evidence"><summary>Evidence (${f.evidence.length})</summary>
-      <ul>${f.evidence.map((e) => `<li><code>${esc(e.kind)}</code> ${esc(e.summary ?? '')} <span class="hash">${esc(e.hash.slice(0, 16))}…</span></li>`).join('')}</ul>
+      <ul>${f.evidence.map((e) => `<li><code>${esc(e.kind)}</code> ${esc(e.summary ?? '')} <span class="hash">${esc(e.hash.slice(0, 16))}...</span></li>`).join('')}</ul>
     </details>
   </div>`;
 }
@@ -100,13 +100,13 @@ export function toHtml(model: ReportModel): string {
 <body><div class="page">
   <div class="cover">
     <h1>${esc(model.title)}</h1>
-    <div class="muted">${esc(model.organization.name)} · Generated ${esc(model.generatedAt)}</div>
+    <div class="muted">${esc(model.organization.name)} - Generated ${esc(model.generatedAt)}</div>
   </div>
 
   <h2>Mission & authorization</h2>
   <table>
     <tr><th>Mission</th><td>${esc(model.mission.name)}</td></tr>
-    <tr><th>Status</th><td>${esc(model.mission.status)} · ${esc(model.mission.mode)} · ${esc(model.mission.permissionMode)}</td></tr>
+    <tr><th>Status</th><td>${esc(model.mission.status)} - ${esc(model.mission.mode)} - ${esc(model.mission.permissionMode)}</td></tr>
     <tr><th>Authorized scope</th><td>${model.scope.map((s) => `<code>${esc(s.type)}:${esc(s.value)}</code>`).join(' ') || '<em>none</em>'}</td></tr>
   </table>
 
@@ -129,13 +129,13 @@ export function toHtml(model: ReportModel): string {
 
   <h2>Evidence integrity</h2>
   <div class="integrity ${model.evidenceIntegrity.valid ? 'ok' : 'bad'}">
-    ${model.evidenceIntegrity.valid ? '✓ Hash chain intact' : '✗ Hash chain broken'} · ${model.evidenceIntegrity.count} record(s).
+    ${model.evidenceIntegrity.valid ? 'OK Hash chain intact' : 'X Hash chain broken'} - ${model.evidenceIntegrity.count} record(s).
     Every finding conclusion is traceable to a timestamped, hash-chained evidence record.
   </div>
 
   <h2>Conclusion</h2>
   <p>${esc(model.conclusion)}</p>
 
-  <footer>Lunatic Pentest AI — authorized security assessment. Confidential.</footer>
+  <footer>Lunatic Pentest AI - authorized security assessment. Confidential.</footer>
 </div></body></html>`;
 }

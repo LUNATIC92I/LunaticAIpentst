@@ -58,7 +58,7 @@ export class SandboxService {
     return this.driverInstance;
   }
 
-  /** Public status for the UI — never throws. */
+  /** Public status for the UI - never throws. */
   async status() {
     const driver = this.driver();
     const available = driver ? await driver.available().catch(() => false) : false;

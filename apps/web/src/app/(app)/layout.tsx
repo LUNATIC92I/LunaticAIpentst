@@ -20,7 +20,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <div className="bg-grid flex min-h-screen items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <Logo size={36} />
-          <p className="text-sm text-text-muted">Authenticating…</p>
+          <p className="text-sm text-text-muted">Authenticating...</p>
         </div>
       </div>
     );

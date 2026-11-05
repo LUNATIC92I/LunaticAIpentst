@@ -2,7 +2,7 @@ import { TaskStatus } from '@lunatic/database';
 
 /**
  * Mission state machine. Only these transitions are legal; any other is
- * rejected. The agent (Phase 6) drives PLANNING→RUNNING→… automatically, but
+ * rejected. The agent (Phase 6) drives PLANNING->RUNNING->... automatically, but
  * the same rules apply whether a human or the agent requests the transition.
  */
 export const ALLOWED_TRANSITIONS: Record<TaskStatus, TaskStatus[]> = {

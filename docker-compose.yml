@@ -1,4 +1,4 @@
-# LUNATIC PENTEST AI — local/dev orchestration.
+# LUNATIC PENTEST AI - local/dev orchestration.
 # Production should add TLS termination (nginx/cloudflare), secrets management
 # and hardened sandbox networking. See docs/DEPLOYMENT.md.
 

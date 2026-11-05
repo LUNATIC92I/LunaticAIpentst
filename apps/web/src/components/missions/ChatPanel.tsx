@@ -56,7 +56,7 @@ export function ChatPanel({ missionId }: { missionId: string }) {
       <form onSubmit={send} className="mt-3 flex gap-2 border-t border-border pt-3">
         <input
           className="input flex-1"
-          placeholder="Describe a task or ask the assistant…"
+          placeholder="Describe a task or ask the assistant..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
         />

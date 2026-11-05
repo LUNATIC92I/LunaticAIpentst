@@ -1,5 +1,5 @@
 /**
- * Password hashing using scrypt (built into Node — no native build step).
+ * Password hashing using scrypt (built into Node - no native build step).
  * Format: scrypt$N$r$p$saltB64$hashB64 so parameters travel with the hash and
  * can be upgraded over time. Verification is constant-time.
  */

@@ -16,7 +16,7 @@ export interface ExecResult {
 
 /**
  * A sandbox driver runs commands in an isolated environment. The application
- * server NEVER executes agent/tool commands directly — only a driver does.
+ * server NEVER executes agent/tool commands directly - only a driver does.
  */
 export interface SandboxDriver {
   readonly name: string;

@@ -79,7 +79,7 @@ export function AiProviders() {
                   <div className="flex items-center gap-2">
                     <span className="font-medium text-text">{p.label}</span>
                     <span className="rounded bg-graphite/40 px-1.5 py-0.5 font-mono text-[10px] text-text-muted">{p.kind}</span>
-                    {p.keyLastFour && <span className="font-mono text-xs text-text-dim">••••{p.keyLastFour}</span>}
+                    {p.keyLastFour && <span className="font-mono text-xs text-text-dim">----{p.keyLastFour}</span>}
                   </div>
                   <div className="mt-0.5 text-xs text-text-dim">
                     {p.models.map((m) => m.name).join(', ') || 'no model'}
@@ -87,13 +87,13 @@ export function AiProviders() {
                   {t && t !== 'loading' && (
                     <div className={`mt-1 flex items-center gap-1 text-xs ${t.ok ? 'text-success' : 'text-danger'}`}>
                       {t.ok ? <CheckCircle2 size={13} /> : <XCircle size={13} />}
-                      {t.ok ? `OK · ${t.model} · ${(t.usage?.inputTokens ?? 0) + (t.usage?.outputTokens ?? 0)} tok` : t.error}
+                      {t.ok ? `OK - ${t.model} - ${(t.usage?.inputTokens ?? 0) + (t.usage?.outputTokens ?? 0)} tok` : t.error}
                     </div>
                   )}
                 </div>
                 <div className="flex shrink-0 items-center gap-1">
                   <button className="btn-ghost px-2 py-1.5 text-xs" onClick={() => test(p.id)} disabled={t === 'loading'}>
-                    <Zap size={13} /> {t === 'loading' ? 'Testing…' : 'Test'}
+                    <Zap size={13} /> {t === 'loading' ? 'Testing...' : 'Test'}
                   </button>
                   <button className="px-2 py-1.5 text-text-dim hover:text-danger" onClick={() => remove(p.id)} aria-label="Remove">
                     <Trash2 size={15} />
@@ -172,13 +172,13 @@ function AddForm({ onClose, onAdded }: { onClose: () => void; onAdded: () => voi
       {(kind === 'CUSTOM' || kind === 'OPENROUTER') && (
         <div>
           <label className="mb-1 block text-xs text-text-muted">Base URL</label>
-          <input className="input font-mono" value={baseUrl} onChange={(e) => setBaseUrl(e.target.value)} placeholder="https://…/v1" />
+          <input className="input font-mono" value={baseUrl} onChange={(e) => setBaseUrl(e.target.value)} placeholder="https://.../v1" />
         </div>
       )}
       {error && <p className="text-sm text-danger">{error}</p>}
       <div className="flex justify-end gap-2">
         <button type="button" className="btn-ghost text-xs" onClick={onClose}>Cancel</button>
-        <button type="submit" className="btn-primary text-xs" disabled={busy}>{busy ? 'Adding…' : 'Add provider'}</button>
+        <button type="submit" className="btn-primary text-xs" disabled={busy}>{busy ? 'Adding...' : 'Add provider'}</button>
       </div>
     </form>
   );

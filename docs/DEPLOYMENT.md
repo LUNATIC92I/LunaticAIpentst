@@ -9,16 +9,16 @@ docker compose up -d
 docker compose exec api pnpm --filter @lunatic/database db:deploy
 docker compose exec api pnpm --filter @lunatic/database db:seed
 ```
-- `api` → `:4000`, `web` → `:3000`.
+- `api` -> `:4000`, `web` -> `:3000`.
 - The API mounts the Docker socket to manage per-mission sandbox containers. In
   production prefer a **dedicated sandbox host/orchestrator or E2B** instead of
   sharing the host socket.
 
 ## Production topology
 ```
-Cloudflare / LB → Nginx (TLS) → web (Next.js) + api (NestJS)
-                                   │
-         PostgreSQL · Redis · S3 (evidence/reports) · Sandbox fleet (Docker/E2B)
+Cloudflare / LB -> Nginx (TLS) -> web (Next.js) + api (NestJS)
+                                   |
+         PostgreSQL - Redis - S3 (evidence/reports) - Sandbox fleet (Docker/E2B)
 ```
 Recommended:
 - Terminate TLS at Nginx/Cloudflare; proxy `/api` and the `/terminal` WebSocket
@@ -32,7 +32,7 @@ Recommended:
 ## Required secrets
 `DATABASE_URL`, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `SECRETS_ENCRYPTION_KEY`
 (32-byte base64). Rotate `JWT_*` with care (invalidates sessions). Keep
-`SECRETS_ENCRYPTION_KEY` stable — it decrypts stored provider keys.
+`SECRETS_ENCRYPTION_KEY` stable - it decrypts stored provider keys.
 
 ## Sandbox execution
 Set `SANDBOX_DRIVER=docker` (or `e2b` with `E2B_API_KEY`) and provide a tools

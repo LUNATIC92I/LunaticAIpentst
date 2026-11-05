@@ -1,5 +1,5 @@
 /**
- * Scope authorization engine — the mandatory choke point.
+ * Scope authorization engine - the mandatory choke point.
  *
  * Every active operation must pass `evaluateTarget` BEFORE dispatch. The engine
  * is pure and side-effect-free so it can be unit-tested exhaustively and reused
@@ -44,7 +44,7 @@ export interface ScopeDecision {
 }
 
 export interface EvaluateOptions {
-  /** Allow private/reserved ranges — lab environments only. Default false. */
+  /** Allow private/reserved ranges - lab environments only. Default false. */
   allowPrivateRanges?: boolean;
   /** Global emergency stop flag for the mission. */
   emergencyStop?: boolean;
@@ -175,7 +175,7 @@ export function evaluateTarget(
       return {
         allowed: false,
         code: 'PRIVATE_RANGE_BLOCKED',
-        reason: `Host ${host} resolves to a private/reserved address — blocked (SSRF / DNS-rebind protection).`,
+        reason: `Host ${host} resolves to a private/reserved address - blocked (SSRF / DNS-rebind protection).`,
       };
     }
   }

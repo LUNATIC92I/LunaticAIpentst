@@ -22,7 +22,7 @@ import type { TaskStatus } from '@lunatic/database';
 /**
  * System prompt for CHAT mode. It binds the assistant to authorized,
  * scope-limited behaviour. The scope guard still enforces every active action
- * server-side regardless of what the model is told — this prompt cannot widen
+ * server-side regardless of what the model is told - this prompt cannot widen
  * authority, it only sets expectations for the conversation.
  */
 function securitySystemPrompt(mission: { name: string; scopeSummary: unknown }): string {
@@ -99,7 +99,7 @@ export class MissionsService {
     const mission = await this.mustOwn(orgId, id);
     if (mission.status === to) return mission;
     if (!canTransition(mission.status, to)) {
-      throw new BadRequestException(`Illegal transition ${mission.status} → ${to}`);
+      throw new BadRequestException(`Illegal transition ${mission.status} -> ${to}`);
     }
     const updated = await this.prisma.task.update({ where: { id }, data: { status: to } });
     await this.audit.record({
@@ -124,7 +124,7 @@ export class MissionsService {
     return updated;
   }
 
-  // ─── Scope ───
+  // --- Scope ---
   async addScopeEntry(orgId: string, id: string, dto: AddScopeEntryDto, actorId: string) {
     await this.mustOwn(orgId, id);
     const entry = await this.prisma.scopeEntry.create({
@@ -157,7 +157,7 @@ export class MissionsService {
     });
   }
 
-  /** Validate a target against the mission scope — the authorization choke point. */
+  /** Validate a target against the mission scope - the authorization choke point. */
   async scopeCheck(orgId: string, id: string, dto: ScopeCheckDto, actorId: string) {
     const mission = await this.mustOwn(orgId, id);
     const entries = await this.prisma.scopeEntry.findMany({ where: { taskId: id } });
@@ -187,7 +187,7 @@ export class MissionsService {
     return decision;
   }
 
-  // ─── Chat (CHAT mode) ───
+  // --- Chat (CHAT mode) ---
   async listMessages(orgId: string, id: string) {
     await this.mustOwn(orgId, id);
     return this.prisma.taskMessage.findMany({ where: { taskId: id }, orderBy: { createdAt: 'asc' } });
@@ -208,7 +208,7 @@ export class MissionsService {
           taskId: id,
           role: 'system',
           content:
-            'AI provider not configured. Add a provider (Admin → AI providers) to receive assistant responses. Your message has been saved to the mission history.',
+            'AI provider not configured. Add a provider (Admin -> AI providers) to receive assistant responses. Your message has been saved to the mission history.',
           metadata: { reason: 'ai_not_configured' },
         },
       });

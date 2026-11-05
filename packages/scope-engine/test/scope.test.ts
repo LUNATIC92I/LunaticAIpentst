@@ -21,7 +21,7 @@ describe('normalizeTarget', () => {
   });
 });
 
-describe('evaluateTarget — default deny', () => {
+describe('evaluateTarget - default deny', () => {
   it('blocks when no scope defined', () => {
     expect(evaluateTarget('example.com', []).code).toBe('NO_SCOPE');
   });
@@ -36,7 +36,7 @@ describe('evaluateTarget — default deny', () => {
   });
 });
 
-describe('evaluateTarget — IP targets', () => {
+describe('evaluateTarget - IP targets', () => {
   it('allows in-scope public IP', () => {
     expect(evaluateTarget('93.184.216.34', scope).allowed).toBe(true);
   });
@@ -55,7 +55,7 @@ describe('evaluateTarget — IP targets', () => {
   });
 });
 
-describe('evaluateTarget — hostnames, SSRF & DNS rebind', () => {
+describe('evaluateTarget - hostnames, SSRF & DNS rebind', () => {
   it('allows in-scope host resolving to public IP', () => {
     const d = evaluateTarget('example.com', scope, {
       resolvedIps: ['93.184.216.34'],

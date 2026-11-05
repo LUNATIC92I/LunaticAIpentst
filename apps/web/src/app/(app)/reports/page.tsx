@@ -52,7 +52,7 @@ export default function ReportsPage() {
       </div>
 
       <select className="input max-w-sm" value={missionId} onChange={(e) => setMissionId(e.target.value)}>
-        <option value="">Select a mission…</option>
+        <option value="">Select a mission...</option>
         {missionList.map((m) => (
           <option key={m.id} value={m.id}>{m.name}</option>
         ))}

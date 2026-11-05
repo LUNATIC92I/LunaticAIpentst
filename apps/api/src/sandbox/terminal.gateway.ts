@@ -21,7 +21,7 @@ interface Session {
 /**
  * Terminal WebSocket gateway. Authenticates the handshake token, resolves the
  * mission's sandbox, and bridges an isolated PTY to the browser's xterm.js.
- * It never runs anything on the application server — only inside the sandbox.
+ * It never runs anything on the application server - only inside the sandbox.
  */
 @WebSocketGateway({ namespace: '/terminal', cors: { origin: true } })
 export class TerminalGateway implements OnGatewayConnection, OnGatewayDisconnect {

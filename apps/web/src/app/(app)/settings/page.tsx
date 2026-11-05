@@ -18,10 +18,10 @@ export default function SettingsPage() {
       <section className="card p-5">
         <h2 className="mb-4 text-sm font-medium text-text">Account</h2>
         <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <Field label="Name" value={me.user.displayName ?? '—'} />
+          <Field label="Name" value={me.user.displayName ?? '-'} />
           <Field label="Email" value={me.user.email} />
-          <Field label="Organization" value={me.org?.name ?? '—'} />
-          <Field label="Last login" value={me.user.lastLoginAt ? new Date(me.user.lastLoginAt).toLocaleString() : '—'} />
+          <Field label="Organization" value={me.org?.name ?? '-'} />
+          <Field label="Last login" value={me.user.lastLoginAt ? new Date(me.user.lastLoginAt).toLocaleString() : '-'} />
         </dl>
       </section>
 
