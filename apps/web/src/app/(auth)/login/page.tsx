@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import { Logo } from '@/components/Logo';
 import { ApiError } from '@/lib/api';
+import { AnimatedBackground } from '@/components/AnimatedBackground';
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -38,8 +39,9 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="bg-grid flex min-h-screen items-center justify-center p-4">
-      <div className="card w-full max-w-md p-8 shadow-glow animate-fade-in">
+    <div className="relative flex min-h-screen items-center justify-center p-4">
+      <AnimatedBackground />
+      <div className="relative z-10 card w-full max-w-md p-8 shadow-glow animate-fade-in">
         <div className="mb-6 flex flex-col items-center gap-2">
           <Logo size={34} />
           <p className="text-sm text-text-muted">Sign in to your workspace</p>

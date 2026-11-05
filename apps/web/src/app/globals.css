@@ -27,6 +27,110 @@ body {
   background-size: 40px 40px;
 }
 
+/* ---------------------------------------------------------------------------
+   Animated background: drifting aurora blobs + parallax grid + scan line.
+   Lives behind content via .lunatic-bg (position:fixed, pointer-events:none).
+   Respects prefers-reduced-motion.
+--------------------------------------------------------------------------- */
+.lunatic-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(1200px 700px at 80% -10%, rgba(14, 165, 233, 0.1), transparent 60%),
+    radial-gradient(900px 600px at -10% 110%, rgba(45, 212, 191, 0.08), transparent 60%),
+    #070b11;
+}
+
+/* Parallax grid that slowly drifts */
+.lunatic-bg__grid {
+  position: absolute;
+  inset: -2px;
+  background-image:
+    linear-gradient(to right, rgba(45, 212, 191, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(56, 189, 248, 0.06) 1px, transparent 1px);
+  background-size: 46px 46px;
+  mask-image: radial-gradient(ellipse 90% 80% at 50% 40%, #000 55%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 90% 80% at 50% 40%, #000 55%, transparent 100%);
+  animation: lunatic-grid 26s linear infinite;
+}
+
+/* Drifting, blurred color blobs (aurora) */
+.lunatic-bg__blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.55;
+  will-change: transform;
+}
+.lunatic-bg__blob--1 {
+  width: 42vw;
+  height: 42vw;
+  left: -8vw;
+  top: -6vw;
+  background: radial-gradient(circle at 30% 30%, rgba(45, 212, 191, 0.5), transparent 65%);
+  animation: lunatic-drift-1 22s ease-in-out infinite;
+}
+.lunatic-bg__blob--2 {
+  width: 46vw;
+  height: 46vw;
+  right: -10vw;
+  top: 8vh;
+  background: radial-gradient(circle at 60% 40%, rgba(56, 189, 248, 0.42), transparent 65%);
+  animation: lunatic-drift-2 28s ease-in-out infinite;
+}
+.lunatic-bg__blob--3 {
+  width: 38vw;
+  height: 38vw;
+  left: 28vw;
+  bottom: -14vw;
+  background: radial-gradient(circle at 50% 50%, rgba(14, 165, 233, 0.32), transparent 65%);
+  animation: lunatic-drift-3 32s ease-in-out infinite;
+}
+
+/* Thin horizontal scan line sweeping down (cyber feel) */
+.lunatic-bg__scan {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 180px;
+  background: linear-gradient(to bottom, transparent, rgba(45, 212, 191, 0.05), transparent);
+  animation: lunatic-scan 7.5s linear infinite;
+}
+
+@keyframes lunatic-grid {
+  from { background-position: 0 0; }
+  to { background-position: 46px 46px; }
+}
+@keyframes lunatic-drift-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(6vw, 5vh) scale(1.12); }
+}
+@keyframes lunatic-drift-2 {
+  0%, 100% { transform: translate(0, 0) scale(1.05); }
+  50% { transform: translate(-7vw, 4vh) scale(0.92); }
+}
+@keyframes lunatic-drift-3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-4vw, -6vh) scale(1.15); }
+}
+@keyframes lunatic-scan {
+  0% { top: -200px; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lunatic-bg__grid,
+  .lunatic-bg__blob,
+  .lunatic-bg__scan {
+    animation: none;
+  }
+}
+
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
