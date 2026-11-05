@@ -13,6 +13,8 @@ import { SandboxModule } from './sandbox/sandbox.module';
 import { BrowserModule } from './browser/browser.module';
 import { ToolsModule } from './tools/tools.module';
 import { ReportsModule } from './reports/reports.module';
+import { BillingModule } from './billing/billing.module';
+import { AdminModule } from './admin/admin.module';
 import { AgentModule } from './agent/agent.module';
 import { HealthController } from './health/health.controller';
 import { JwtAuthGuard } from './common/jwt-auth.guard';
@@ -32,6 +34,8 @@ import { PermissionsGuard } from './common/permissions.guard';
     BrowserModule,
     ToolsModule,
     ReportsModule,
+    BillingModule,
+    AdminModule,
     MissionsModule,
     AgentModule,
   ],

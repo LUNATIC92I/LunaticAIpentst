@@ -122,9 +122,16 @@ Status legend: ✅ done · 🚧 in progress · ⬜ not started.
 - [x] Reports UI (generate + download) and in-panel finding triage.
       Verified LIVE: all 4 formats generate; PDF is a real %PDF; 44 API tests pass.
 
-## Phase 11 — Billing & admin ⬜
-- [ ] Plans, Stripe, invoices, credits, usage dashboard
-- [ ] Admin panel (users/roles/providers/quotas/logs)
+## Phase 11 — Billing & admin ✅
+- [x] Plan catalog FREE/PRO/PRO_PLUS/ULTRA/TEAM (pure config, unit-tested)
+- [x] Billing overview: tier, plan, credits (plan+purchased−consumed), usage by kind
+- [x] Stripe adapter (REST, dependency-free) incl. webhook-signature verify;
+      honest NOT_CONFIGURED without keys. Invoices + usage endpoints.
+- [x] Admin (org-scoped): members list, suspend/reinstate (revokes sessions),
+      role change, audit log, system stats, direct plan change
+- [x] Billing/Pricing UI + Admin UI (stats, members, audit); Admin nav gated on
+      admin:users. Verified LIVE end-to-end. 49 API unit tests pass.
+- [ ] Platform-level superadmin (cross-org) + configurable prices in admin UI
 
 ## Phase 12 — Tests, optimization & deployment ⬜
 - [ ] Unit/integration/API/security/sandbox/load tests

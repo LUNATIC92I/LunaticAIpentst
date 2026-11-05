@@ -324,6 +324,63 @@ export const findingsApi = {
     api<Finding>(`/missions/${missionId}/findings/${findingId}`, { method: 'PATCH', body: JSON.stringify(payload) }),
 };
 
+// ─── Billing ───
+export interface Plan {
+  tier: string;
+  name: string;
+  priceCentsMonthly: number;
+  monthlyCredits: number;
+  maxConcurrentMissions: number;
+  maxSandboxes: number;
+  agentProfiles: string[];
+  seats: number;
+  features: string[];
+}
+export interface BillingOverview {
+  subscription: { tier: string; status: string; currentPeriodEnd: string | null };
+  plan: Plan;
+  credits: { planMonthly: number; purchased: number; consumed: number; remaining: number };
+  usageByKind: Record<string, number>;
+  stripeConfigured: boolean;
+}
+export const billing = {
+  plans: () => api<Plan[]>('/billing/plans'),
+  overview: () => api<BillingOverview>('/billing/overview'),
+  usage: () => api<{ id: string; kind: string; quantity: number; createdAt: string }[]>('/billing/usage'),
+  checkout: (tier: string) =>
+    api<{ status: string; url?: string; message?: string }>('/billing/checkout', { method: 'POST', body: JSON.stringify({ tier }) }),
+};
+
+// ─── Admin ───
+export interface AdminUser {
+  id: string;
+  email: string;
+  displayName: string | null;
+  isSuspended: boolean;
+  mfaEnabled: boolean;
+  lastLoginAt: string | null;
+  role: { id: string; name: string };
+}
+export interface AdminStats {
+  members: number; missions: number; running: number; findings: number; confirmed: number;
+  sandboxes: number; toolRuns: number; reports: number; providers: number;
+}
+export interface AuditEntry {
+  id: string; action: string; target: string | null; actorId: string | null; createdAt: string;
+  metadata?: Record<string, unknown> | null;
+}
+export const admin = {
+  users: () => api<AdminUser[]>('/admin/users'),
+  roles: () => api<{ id: string; name: string; description: string | null }[]>('/admin/roles'),
+  suspend: (userId: string, suspend: boolean) =>
+    api(`/admin/users/${userId}/suspend`, { method: 'POST', body: JSON.stringify({ suspend }) }),
+  setRole: (userId: string, roleId: string) =>
+    api(`/admin/users/${userId}/role`, { method: 'POST', body: JSON.stringify({ roleId }) }),
+  stats: () => api<AdminStats>('/admin/stats'),
+  audit: (limit = 50) => api<AuditEntry[]>(`/admin/audit?limit=${limit}`),
+  setTier: (tier: string) => api('/admin/plan', { method: 'POST', body: JSON.stringify({ tier }) }),
+};
+
 // ─── Sandbox ───
 export interface SandboxStatus {
   driver: string;
